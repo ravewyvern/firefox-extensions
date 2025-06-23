@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Time Dashboard</title>
+    <link rel="stylesheet" href="tracker.css">
+    <link rel="icon" href="../icons/icon-128.png" type="image/svg+xml">
+</head>
+<body>
+    <div class="main-container">
+        <div class="panel" id="panel-daily">
+            <div class="panel-header">
+                <h2>Daily Breakdown</h2>
+                <div id="date-navigation" class="date-nav">
+                    </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="dailyActivityChart"></canvas>
+            </div>
+            <div id="website-list">
+                </div>
+        </div>
+
+        <div class="panel" id="panel-weekly">
+            <div class="panel-header">
+                <h2>Weekly Overview</h2>
+            </div>
+            <div class="summary-stats">
+                <div class="stat-box">
+                    <span>Today</span>
+                    <strong id="total-today">--</strong>
+                </div>
+                <div class="stat-box">
+                    <span>This Week</span>
+                    <strong id="total-this-week">--</strong>
+                </div>
+                <div class="stat-box">
+                    <span>Daily Average</span>
+                    <strong id="average-this-week">--</strong>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="weeklyActivityChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+<div id="color-modal" class="modal-hidden">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <div id="modal-website-info">
+            <img id="modal-favicon" src="" alt="icon" />
+            <h3 id="modal-website-name">domain.com</h3>
+        </div>
+        <p>Total time this week: <strong id="modal-weekly-total">--</strong></p>
+
+        <div class="modal-section">
+            <div class="control-group">
+                <label for="time-limit-input">Set daily time limit (minutes):</label>
+                <input type="number" id="time-limit-input" min="1">
+                <button id="save-limit-button" class="modal-button">Set Limit</button>
+            </div>
+            <div class="control-group">
+                <label for="block-duration-input">Block site for (hours):</label>
+                <input type="number" id="block-duration-input" min="1" max="24">
+                <button id="block-until-button" class="modal-button">Block</button>
+            </div>
+        </div>
+        <div class="color-picker-wrapper">
+            <label for="colorPicker">Set a permanent color:</label>
+            <input type="color" id="colorPicker">
+            <button id="save-color-button">Save Color</button>
+        </div>
+    </div>
+</div>
+
+<script src="../lib/chart.umd.js"></script> <script src="../utils/colors.js"></script>
+    <script src="tracker.js"></script>
+</body>
+</html>

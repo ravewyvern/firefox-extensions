@@ -1,0 +1,8 @@
+.section {
+  border-radius: var(--theme-border-radius-lg);
+  background-color: var(--theme-bg-body-alt);
+}
+
+body {
+  background-color: var(--theme-bg-body);
+}

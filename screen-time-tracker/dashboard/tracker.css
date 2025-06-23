@@ -1,0 +1,217 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #28282c;
+    color: white;
+    margin: 0;
+    padding: 70px; /* Add this line */
+}
+
+/* Add these styles to the end of tracker.css */
+.modal-section {
+    border-top: 1px solid #eee;
+    margin-top: 15px;
+    padding-top: 15px;
+}
+
+.control-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.control-group label {
+    margin-right: 10px;
+}
+
+.control-group input[type="number"] {
+    width: 60px;
+    padding: 5px;
+    border: 1px solid #636363;
+    border-radius: 4px;
+}
+
+.modal-button {
+    background-color: #717172;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+}
+
+.modal-button:hover {
+    background-color: #7a7b7f;
+}
+
+/* Make the save color button more distinct */
+#save-color-button {
+    background-color: #773ea5;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column; /* <-- THIS IS THE KEY CHANGE */
+    gap: 20px;
+    padding: 20px;
+    align-items: center; /* Optional: centers the panels horizontally */
+}
+
+.panel {
+    background-color: #303030;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+#panel-weekly {
+    flex: 1;
+    width: 100%; /* Make it take the full width of the container */
+    /* position: sticky; <-- REMOVED */
+    top: 20px;
+}
+
+#panel-daily {
+    flex: 2; /* This rule still works fine, but you can also set width: 100% */
+    width: 100%;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+h2 {
+    margin: 0;
+    font-size: 20px;
+    color: white;
+}
+
+/* Date Navigation */
+.date-nav button {
+    color: white;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    background-color: #303030;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+.date-nav button.active {
+    background-color: #773ea5;
+    color: white;
+    border-color: #663291;
+}
+
+/* Chart Container */
+.chart-container {
+    margin-bottom: 20px;
+}
+
+/* Website List Items */
+.website-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+.website-item:hover {
+    background-color: #606060;
+}
+.website-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.color-circle {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.website-name {
+    font-weight: 500;
+}
+.website-time {
+    font-weight: bold;
+    color: #d0d0d0;
+}
+
+/* Summary Stats */
+.summary-stats {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    margin-bottom: 25px;
+}
+.stat-box strong {
+    display: block;
+    font-size: 24px;
+    color: white;
+}
+.stat-box span {
+    font-size: 14px;
+    color: white;
+}
+
+/* Modal Styling */
+.modal-hidden {
+    display: none;
+}
+.modal-visible {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-content {
+    background-color: #303030;
+    padding: 25px;
+    border-radius: 8px;
+    width: 350px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    text-align: center;
+}
+#modal-website-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+#modal-favicon {
+    width: 24px;
+    height: 24px;
+}
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.color-picker-wrapper {
+    margin: 20px 0;
+}

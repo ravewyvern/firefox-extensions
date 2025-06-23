@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tabs Grid</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link href="./tailwind.css" rel="stylesheet">
+    <link rel="icon" href="../icons/tabs-grid.svg" type="image/svg+xml">
+    <style type="text/css">
+        body {
+            background-color: #28282c;
+            /* Add padding to the bottom to make space for the fixed footer */
+            padding-bottom: 80px;
+        }
+        .switch-tabs {
+            display: block;
+        }
+        .switch-tabs.has-favicon {
+            background-position: left 0.3em;
+            background-repeat: no-repeat;
+            background-size: 1em 1em;
+            padding-left: 1.5em;
+        }
+        .img {
+            border-bottom: 1px solid #ddd;
+        }
+        .tab-card {
+            background-color: #222226;
+            position: relative;
+            /* For smooth drag-and-drop animations */
+            transition: transform 0.2s ease-in-out;
+        }
+        .tab-url, .switch-tabs {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .tab-url, .last-seen {
+            background-repeat: no-repeat;
+            background-size: 1em 1em;
+            padding-left: 1.5em;
+            background-position: left center;
+        }
+        .tab-url { background-image: url(../icons/link.svg); }
+        .last-seen { background-image: url(../icons/history.svg); }
+        .close-btn {
+            display: block;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            z-index: 10;
+            opacity: .5;
+            background: #343438 url(../icons/close.svg) center center no-repeat;
+            box-shadow: rgba(0, 0, 0, 0.25) 0px 0px 0px 0px, rgba(0, 0, 0, 0.25) 0px 0px 0px 0px, rgba(0, 0, 0, 0.35) 0px 1px 3px 0px, rgba(0, 0, 0, 0.31) 0px 1px 2px 0px;
+        }
+        .close-btn:hover { opacity: 1; }
+
+        /* Animation Styles (Unchanged) */
+        .tab-animating { position: fixed; z-index: 9999; transition: all 0.5s ease-in-out; border-radius: 8px; }
+        .expand-animation { width: 100vw !important; height: 100vh !important; top: 0 !important; left: 0 !important; }
+        .shrink-animation { width: 100vw; height: 100vh; position: fixed; z-index: 9999; transition: all 0.5s ease-in-out; }
+
+        /* --- NEW STYLES --- */
+
+        /* Container Border Colors */
+        .container-personal { border-color: #3b82f6; } /* Blue */
+        .container-work { border-color: #f97316; }     /* Orange */
+        .container-banking { border-color: #22c55e; }  /* Green */
+        .container-shopping { border-color: #ef4444; } /* Red */
+        .container-default { border-color: #eab308; }  /* Yellow */
+
+        /* Pinned Tab Style */
+        .pinned-tab {
+             border-width: 4px; /* Thicker border for pinned tabs */
+        }
+
+        /* Status Icon Container */
+        .status-icons {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            z-index: 5;
+            display: flex;
+            gap: 4px;
+        }
+        .status-icons .material-symbols-outlined {
+            font-size: 18px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            padding: 2px;
+        }
+
+        /* SortableJS Ghost Style (for the item being dragged) */
+        .sortable-ghost {
+            opacity: 0.4;
+        }
+
+        /* Fixed Footer for New Tab Button */
+        .fixed-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .new-tab-btn {
+            background-color: #4f46e5;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        .new-tab-btn:hover { background-color: #6366f1; }
+
+        /* Custom Context Menu */
+        #context-menu {
+            position: absolute;
+            display: none;
+            background-color: #343438;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            min-width: 220px;
+            z-index: 2000;
+            padding: 6px;
+            color: #e5e7eb;
+        }
+        .context-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            gap: 12px;
+        }
+        .context-menu-item:hover { background-color: #4b5563; }
+        .context-menu-item .material-symbols-outlined { font-size: 20px; }
+        .context-menu-separator {
+            height: 1px;
+            background-color: #4b5563;
+            margin: 6px 0;
+        }
+      
+      /* --- NEW STYLES FROM LATEST REQUEST --- */
+
+        /* Hover effect for tab cards */
+        .tab-card:hover {
+            background-color: #37373c; /* A slightly lighter shade */
+        }
+
+        /* Styling for unloaded (discarded) tabs */
+        .unloaded-tab .title,
+        .unloaded-tab .tab-url,
+        .unloaded-tab .last-seen {
+            color: #6b7280 !important; /* Tailwind's gray-500 */
+        }
+        .unloaded-tab .has-favicon {
+            filter: grayscale(100%);
+            opacity: 0.6;
+        }
+
+        /* Make the drag-and-drop divider more visible */
+        .sortable-drag + #divider {
+            border-color: #4f46e5;
+            border-width: 2px;
+        }
+    </style>
+</head>
+<body>
+<div class="container mx-auto">
+    <br>
+    <!-- New container for pinned tabs -->
+    <div id="pinned-list" class="grid grid-cols-4 gap-8 mb-6"></div>
+
+    <!-- New divider, will be shown/hidden by JavaScript -->
+    <br>
+    <div id="divider" class="border-b border-gray-600 my-6 hidden"></div>
+
+    <!-- Container for regular tabs -->
+    <div id="list" class="grid grid-cols-4 gap-8"></div>
+</div>
+
+<template id="tpl-tab">
+    <div class="tab-card shadow rounded overflow-hidden">
+        <div class="status-icons"></div>
+
+        <button class="close-btn rounded w-6 h-6 transition-opacity"></button>
+        <a class="img switch-tabs h-48 bg-cover bg-no-repeat bg-center"></a>
+        <div class="py-2 px-4">
+            <a href="#" class="switch-tabs title mb-3 font-semibold"></a>
+            <div class="tab-url mb-2 text-gray-400 text-sm"></div>
+            <div class="last-seen text-gray-400 text-xs"></div>
+        </div>
+    </div>
+</template>
+
+<footer class="fixed-footer">
+    <button id="new-tab-btn" class="new-tab-btn">
+        <span class="material-symbols-outlined">add</span> New Tab
+    </button>
+</footer>
+
+<div id="context-menu">
+    <div class="context-menu-item" data-action="new-tab-below"><span class="material-symbols-outlined">add_box</span>New Tab Below</div>
+    <div class="context-menu-item" data-action="reload"><span class="material-symbols-outlined">refresh</span>Reload</div>
+    <div class="context-menu-item" data-action="duplicate"><span class="material-symbols-outlined">content_copy</span>Duplicate</div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" data-action="pin"><span class="material-symbols-outlined">push_pin</span>Pin Tab</div>
+    <div class="context-menu-item" data-action="unpin"><span class="material-symbols-outlined">push_pin</span>Unpin Tab</div>
+    <div class="context-menu-item" data-action="mute"><span class="material-symbols-outlined">volume_off</span>Mute Tab</div>
+    <div class="context-menu-item" data-action="unmute"><span class="material-symbols-outlined">volume_up</span>Unmute Tab</div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" data-action="bookmark"><span class="material-symbols-outlined">bookmark_add</span>Bookmark Tab</div>
+    <div class="context-menu-item" data-action="unload"><span class="material-symbols-outlined">cloud_off</span>Unload Tab</div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" data-action="close"><span class="material-symbols-outlined">close</span>Close Tab</div>
+    <div class="context-menu-item" data-action="close-other"><span class="material-symbols-outlined">close_fullscreen</span>Close Other Tabs</div>
+    <div class="context-menu-item" data-action="close-unused"><span class="material-symbols-outlined">delete_history</span>Close Unused (30d)</div>
+</div>
+
+<br>
+<script src="./lib/Sortable.min.js"></script>
+<script src="index.js"></script>
+</body>
+</html>
+
