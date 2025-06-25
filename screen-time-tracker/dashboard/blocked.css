@@ -4,7 +4,7 @@ body {
     align-items: center;
     height: 100vh;
     font-family: sans-serif;
-    background-color: #f0f2f5;
+    background-color: #28282c;
     text-align: center;
     margin: 0;
 }
@@ -12,7 +12,7 @@ body {
 .block-container {
     max-width: 500px;
     padding: 40px;
-    background-color: white;
+    background-color: #303030;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
@@ -25,19 +25,19 @@ body {
 
 h1 {
     font-size: 28px;
-    color: #1c1e21;
+    color: white;
 }
 
 p {
     font-size: 16px;
-    color: #65676b;
+    color: rgba(156, 163, 175);
     margin-top: 10px;
 }
 
 #dashboard-button {
     margin-top: 30px;
     padding: 12px 25px;
-    background-color: #1877f2;
+    background-color: #773ea5;
     color: white;
     border: none;
     border-radius: 6px;
@@ -47,5 +47,5 @@ p {
 }
 
 #dashboard-button:hover {
-    background-color: #166fe5;
+    background-color: #5d2d84;
 }

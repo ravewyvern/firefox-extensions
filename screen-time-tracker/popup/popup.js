@@ -1,7 +1,14 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    // --- NEW: Helper function to get a YYYY-MM-DD key for the LOCAL date ---
+    function getLocalDateKey(date) {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
     const listElement = document.getElementById('top-sites-list');
-
-    const today = new Date().toISOString().split('T')[0];
+    let selectedDate = new Date();
+    const today = getLocalDateKey(selectedDate);
     const storage = await browser.storage.local.get(['timeData', 'colorPreferences']);
     const timeData = storage.timeData || {};
     const colorPreferences = storage.colorPreferences || {};

@@ -28,6 +28,12 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "share-stuff@ravewyvern.me",
+      "strict_min_version": "114.0"
+    }
+  },
   "web_accessible_resources": [
     {
       "resources": ["icons/*.svg"],

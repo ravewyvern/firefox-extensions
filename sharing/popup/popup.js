@@ -20,7 +20,6 @@ const searchInput = document.getElementById('search-services');
 const customNameInput = document.getElementById('custom-name');
 const customUrlInput = document.getElementById('custom-url');
 const customIconInput = document.getElementById('custom-icon');
-const customColorInput = document.getElementById('custom-color');
 const customCopyOnlyInput = document.getElementById('custom-copy-only');
 
 // QR Modal Elements
@@ -59,13 +58,6 @@ function copyToClipboard(text, feedbackElement) {
  */
 async function init() {
     try {
-        // Restore custom form state from session storage to prevent data loss on popup close
-        customNameInput.value = sessionStorage.getItem('custom_form_custom-name') || '';
-        customUrlInput.value = sessionStorage.getItem('custom_form_custom-url') || '';
-        customIconInput.value = sessionStorage.getItem('custom_form_custom-icon') || '';
-        customColorInput.value = sessionStorage.getItem('custom_form_custom-color') || '#4A90E2';
-        customCopyOnlyInput.checked = (sessionStorage.getItem('custom_form_custom-copy-only') === 'true');
-
         const tabs = await browser.tabs.query({ active: true, currentWindow: true });
         currentTab = tabs[0];
 
@@ -189,7 +181,6 @@ function setupEventListeners() {
     // View toggling
     editButton.addEventListener('click', () => toggleView(true));
     doneButton.addEventListener('click', async () => {
-        // Save changes before closing the edit view
         await browser.storage.local.set({ userServices });
         toggleView(false);
         renderServicesGrid();
@@ -232,21 +223,6 @@ function setupEventListeners() {
         });
     });
 
-    // Persist custom form state on input to prevent data loss from color picker
-    const customFormInputs = [customNameInput, customUrlInput, customIconInput];
-    customFormInputs.forEach(input => {
-        input.addEventListener('input', () => {
-            sessionStorage.setItem(`custom_form_${input.id}`, input.value);
-        });
-    });
-    customColorInput.addEventListener('input', () => {
-        sessionStorage.setItem('custom_form_custom-color', customColorInput.value);
-    });
-    customCopyOnlyInput.addEventListener('change', () => {
-        sessionStorage.setItem('custom_form_custom-copy-only', customCopyOnlyInput.checked);
-    });
-
-
     // Add custom service
     addCustomServiceButton.addEventListener('click', async () => {
         const name = customNameInput.value.trim();
@@ -261,7 +237,7 @@ function setupEventListeners() {
             name,
             urlTemplate,
             icon: customIconInput.value.trim() || '../icons/default.svg',
-            color: customColorInput.value,
+            color: '#773ea5', // Hardcoded new default color
             copyOnly: customCopyOnlyInput.checked,
             category: 'Custom'
         };
@@ -274,12 +250,8 @@ function setupEventListeners() {
 
         await browser.storage.local.set({ customServices, userServices });
 
-        // Clear form fields and session storage
         [customNameInput, customUrlInput, customIconInput].forEach(i => i.value = '');
         customCopyOnlyInput.checked = false;
-        customColorInput.value = '#4A90E2';
-        const inputsToClear = ['custom-name', 'custom-url', 'custom-icon', 'custom-color', 'custom-copy-only'];
-        inputsToClear.forEach(id => sessionStorage.removeItem(`custom_form_${id}`));
 
         renderAvailableServicesList();
     });
