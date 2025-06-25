@@ -9,11 +9,11 @@ Which currently includes:
 5. Sharing - share the link of the current page or highlighted text with a click
 
 extension Ideas im considering
-Permission Monitor - log when sites accessed specific permissions
-AI Assistant - control websites and find info like google assistant
-Custom Homepage - that was customizable with widgets and apps (would be links to websites)
-Dynamic island - show notifications, set times show media and dowloads etc
-theme manager - change a theme which would apply to all my extentions
+1. Permission Monitor - log when sites accessed specific permissions
+2. AI Assistant - control websites and find info like google assistant
+3. Custom Homepage - that was customizable with widgets and apps (would be links to websites)
+4. Dynamic island - show notifications, set times show media and dowloads etc
+5. theme manager - change a theme which would apply to all my extentions
 
 Probably more to come when I come up with ideas
 
