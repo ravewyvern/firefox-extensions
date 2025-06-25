@@ -147,6 +147,90 @@ async function loadAllServices() {
             "urlTemplate": "https://www.pinterest.com/pin/create/bookmarklet/?url=%s",
             "copyOnly": false,
             "category": "Social"
+        },
+        {
+            "id": "bluesky",
+            "name": "Bluesky",
+            "urlTemplate": "https://bsky.app/intent/compose?text=%s",
+            "copyOnly": false,
+            "category": "Social"
+        },
+        {
+            "id": "instapaper",
+            "name": "Instapaper",
+            "urlTemplate": "https://www.instapaper.com/edit?url=%s",
+            "copyOnly": false,
+            "category": "Social"
+        },
+        {
+            "id": "gmail",
+            "name": "Gmail",
+            "urlTemplate": "https://mail.google.com/mail/?ui=2&view=cm&fs=1&tf=1&su=Check%20out%20this%20page&body=%s",
+            "copyOnly": false,
+            "category": "Productivity"
+        },
+        {
+            "id": "teams",
+            "name": "Teams",
+            "urlTemplate": "https://teams.microsoft.com/share?href=%s",
+            "copyOnly": false,
+            "category": "Productivity"
+        },
+        {
+            "id": "translate",
+            "name": "Translate",
+            "urlTemplate": "https://translate.google.com/translate?u=%s",
+            "copyOnly": false,
+            "category": "Productivity"
+        },
+        {
+            "id": "evernote",
+            "name": "Evernote",
+            "urlTemplate": "https://www.evernote.com/clip.action?url=%s&title=webclip",
+            "copyOnly": false,
+            "category": "Productivity"
+        },
+        {
+            "id": "threads",
+            "name": "Threads",
+            "urlTemplate": "https://www.threads.net/intent/post?text=%s",
+            "copyOnly": false,
+            "category": "Productivity"
+        },
+        {
+            "id": "sms",
+            "name": "SMS",
+            "urlTemplate": "sms:?&body=%s",
+            "copyOnly": false,
+            "category": "Productivity"
+        },
+        {
+            "id": "outlook",
+            "name": "Outlook",
+            "urlTemplate": "https://outlook.live.com/mail/deeplink/compose?path=%2Fmail%2Finbox&subject=Check%20out%20this%20page&body=%s",
+            "copyOnly": false,
+            "category": "Productivity"
+        },
+        {
+            "id": "classroom",
+            "name": "Google Classroom",
+            "urlTemplate": "https://classroom.google.com/share?url=%s",
+            "copyOnly": false,
+            "category": "Productivity"
+        },
+        {
+            "id": "messenger",
+            "name": "Facebook Messenger",
+            "urlTemplate": "https://www.facebook.com/dialog/send?app_id=5303202981&display=popup&link=%s&redirect_uri=https%3a%2f%2fstatic.addtoany.com%2fmenu%2fthanks.html%23url%3d%s",
+            "copyOnly": false,
+            "category": "Productivity"
+        },
+        {
+            "id": "flipboard",
+            "name": "Flipboard",
+            "urlTemplate": "https://share.flipboard.com/bookmarklet/popout?v=2&url=%s",
+            "copyOnly": false,
+            "category": "Productivity"
         }
     ];
 
