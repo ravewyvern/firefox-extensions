@@ -1,10 +1,10 @@
 :root {
-    --background-color: #f0f2f5;
-    --card-background: #ffffff;
-    --text-primary: #1c1e21;
-    --text-secondary: #65676b;
-    --accent-color: #1877f2;
-    --border-color: #ced0d4;
+    --background-color: #28282c;
+    --card-background: #303030;
+    --text-primary: white;
+    --text-secondary: rgba(156, 163, 175);
+    --accent-color: #773ea5;
+    --border-color: #323235;
     --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     --popup-height: 550px; /* Define a consistent height */
 }
@@ -72,12 +72,14 @@ body {
 .service-item:hover .service-icon-wrapper { transform: scale(1.1); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
 .service-icon { width: 32px; height: 32px; filter: brightness(0) invert(1); }
 .service-name { font-size: 12px; color: var(--text-primary); width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.svg-invert { filter: brightness(0) invert(1); }
+.background-fix { background-color: var(--card-background); color: var(--text-primary); }
 
 /* --- Footer & Actions --- */
 footer { margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 12px; flex-shrink: 0; }
 .footer-actions { display: flex; gap: 8px; }
 .footer-button { flex: 1; background-color: var(--card-background); color: var(--text-primary); border: 1px solid var(--border-color); padding: 10px; font-size: 14px; font-weight: 600; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 0.2s ease; }
-.footer-button:hover { background-color: #e9ebee; }
+.footer-button:hover { background-color: #454545; }
 .footer-button img { width: 16px; height: 16px; }
 
 /* --- Edit View Content (FOR SCROLLING) --- */

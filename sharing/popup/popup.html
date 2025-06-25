@@ -17,7 +17,7 @@
                 <p id="page-url">Loading...</p>
             </div>
             <button id="edit-button" class="icon-button" title="Edit Services">
-                <img src="../icons/edit.svg" alt="Edit">
+                <img src="../icons/edit.svg" alt="Edit" class="svg-invert">
             </button>
         </header>
 
@@ -26,11 +26,11 @@
         <footer>
             <div class="footer-actions">
                 <button id="copy-button" class="footer-button">
-                    <img src="../icons/copy.svg" alt="Copy Icon">
+                    <img src="../icons/copy.svg" alt="Copy Icon" class="svg-invert">
                     Copy Link
                 </button>
                 <button id="qr-code-button" class="footer-button">
-                    <img src="../icons/qrcode.svg" alt="QR Code Icon">
+                    <img src="../icons/qrcode.svg" alt="QR Code Icon" class="svg-invert">
                     QR Code
                 </button>
             </div>
@@ -42,23 +42,23 @@
         <header class="edit-header">
             <h2>Manage Services</h2>
             <button id="done-button" class="icon-button" title="Done Editing">
-                <img src="../icons/check.svg" alt="Done">
+                <img src="../icons/check.svg" alt="Done" class="svg-invert">
             </button>
         </header>
 
         <div class="edit-view-content">
             <div class="search-wrapper">
-                <input type="text" id="search-services" placeholder="Search services...">
+                <input type="text" id="search-services" placeholder="Search services..." class="background-fix">
             </div>
 
             <div id="available-services-list"></div>
 
             <div class="custom-service-form">
                 <h3>Add a Custom Service</h3>
-                <input type="text" id="custom-name" placeholder="Service Name">
-                <input type="text" id="custom-url" placeholder="URL Template (use %s)">
-                <input type="text" id="custom-icon" placeholder="Icon URL">
-                <input type="color" id="custom-color" value="#4A90E2">
+                <input type="text" id="custom-name" placeholder="Service Name" class="background-fix">
+                <input type="text" id="custom-url" placeholder="URL Template (use %s)" class="background-fix">
+                <input type="text" id="custom-icon" placeholder="Icon URL" class="background-fix">
+                <input type="color" id="custom-color" value="#773ea5">
                 <div class="checkbox-wrapper">
                     <input type="checkbox" id="custom-copy-only">
                     <label for="custom-copy-only">Copy link & open URL</label>

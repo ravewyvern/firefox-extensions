@@ -150,7 +150,7 @@ function renderAvailableServicesList() {
             : '';
 
         item.innerHTML = `
-            <img src="${service.icon}" alt="${service.name} icon">
+            <img class="svg-invert" src="${service.icon}" alt="${service.name} icon">
             <span>${service.name}</span>
             ${deleteButtonHTML}
             <label class="switch">
