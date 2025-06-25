@@ -133,6 +133,20 @@ async function loadAllServices() {
             "urlTemplate": "https://pairdrop.net/",
             "copyOnly": true,
             "category": "Messaging"
+        },
+        {
+            "id": "blogger",
+            "name": "Blogger",
+            "urlTemplate": "https://www.blogger.com/blog-this.g?n=%s",
+            "copyOnly": false,
+            "category": "Productivity"
+        },
+        {
+            "id": "pinterest",
+            "name": "Pinterest",
+            "urlTemplate": "https://www.pinterest.com/pin/create/bookmarklet/?url=%s",
+            "copyOnly": false,
+            "category": "Social"
         }
     ];
 

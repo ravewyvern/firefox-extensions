@@ -164,5 +164,23 @@ const defaultServices = [
         "color": "#3f7ee9",
         "copyOnly": true,
         "category": "Messaging"
+    },
+    {
+        "id": "blogger",
+        "name": "Blogger",
+        "urlTemplate": "https://www.blogger.com/blog-this.g?n=%s",
+        "icon": "../icons/blogger.svg",
+        "color": "#f57c00",
+        "copyOnly": false,
+        "category": "Productivity"
+    },
+    {
+        "id": "pinterest",
+        "name": "Pinterest",
+        "urlTemplate": "https://www.pinterest.com/pin/create/bookmarklet/?url=%s",
+        "icon": "../icons/pinterest.svg",
+        "color": "#bd081c",
+        "copyOnly": false,
+        "category": "Social"
     }
 ];
