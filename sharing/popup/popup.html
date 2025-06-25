@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sharing</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+<div id="app">
+    <!-- Main View -->
+    <div id="main-view">
+        <header class="page-preview">
+            <img id="favicon" src="../icons/icon48.png" alt="Favicon" class="favicon">
+            <div class="page-info">
+                <h1 id="page-title">Loading...</h1>
+                <p id="page-url">Loading...</p>
+            </div>
+            <button id="edit-button" class="icon-button" title="Edit Services">
+                <img src="../icons/edit.svg" alt="Edit">
+            </button>
+        </header>
+
+        <main id="services-grid" class="services-grid"></main>
+
+        <footer>
+            <div class="footer-actions">
+                <button id="copy-button" class="footer-button">
+                    <img src="../icons/copy.svg" alt="Copy Icon">
+                    Copy Link
+                </button>
+                <button id="qr-code-button" class="footer-button">
+                    <img src="../icons/qrcode.svg" alt="QR Code Icon">
+                    QR Code
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Edit View -->
+    <div id="edit-view" class="hidden">
+        <header class="edit-header">
+            <h2>Manage Services</h2>
+            <button id="done-button" class="icon-button" title="Done Editing">
+                <img src="../icons/check.svg" alt="Done">
+            </button>
+        </header>
+
+        <div class="edit-view-content">
+            <div class="search-wrapper">
+                <input type="text" id="search-services" placeholder="Search services...">
+            </div>
+
+            <div id="available-services-list"></div>
+
+            <div class="custom-service-form">
+                <h3>Add a Custom Service</h3>
+                <input type="text" id="custom-name" placeholder="Service Name">
+                <input type="text" id="custom-url" placeholder="URL Template (use %s)">
+                <input type="text" id="custom-icon" placeholder="Icon URL">
+                <input type="color" id="custom-color" value="#4A90E2">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="custom-copy-only">
+                    <label for="custom-copy-only">Copy link & open URL</label>
+                </div>
+                <button id="add-custom-service">Add Custom Service</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div id="qr-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button id="modal-close-button" class="modal-close">&times;</button>
+            <h3>Scan QR Code to Share</h3>
+            <div id="qr-code-container">
+                <!-- The QR code image will be generated here -->
+            </div>
+            <p id="qr-url-display"></p>
+            <a id="qr-download-link" class="footer-button" download="qrcode.png">Download QR Code</a>
+        </div>
+    </div>
+
+    <!-- A hidden text area for the copy to clipboard functionality -->
+    <textarea id="clipboard-helper" style="display: none;"></textarea>
+</div>
+<script src="../lib/qrcode.min.js"></script>
+<script src="../services/services.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>
