@@ -1,0 +1,295 @@
+/* --- Base & Wallpaper --- */
+:root {
+    --grid-gap: 10px;
+    --grid-item-size: 80px; /* Base size for 1x1 app */
+    --modal-backdrop: rgba(0, 0, 0, 0.6);
+    --modal-bg: #2c2c2e;
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b5;
+    --accent-color: #0a84ff;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --item-bg: rgba(60, 60, 67, 0.7);
+    --item-hover-bg: rgba(75, 75, 82, 0.8);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #1c1c1e;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: var(--text-primary);
+    margin: 0;
+    overflow: hidden;
+    transition: background-image 0.5s ease-in-out;
+}
+
+/* --- Grid Container --- */
+#grid-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    display: grid;
+    gap: var(--grid-gap);
+    transition: background-color 0.3s;
+}
+
+#grid-container.edit-mode::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+            linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: var(--grid-item-size) var(--grid-item-size);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* --- Grid Items (Apps & Widgets) --- */
+.grid-item {
+    position: relative;
+    background-color: var(--item-bg);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease-in-out, background-color 0.2s;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.grid-item.dragging {
+    opacity: 0.5;
+    z-index: 1000;
+}
+
+.grid-item:not(.edit-mode-item):hover {
+    transform: translateY(-5px);
+    background-color: var(--item-hover-bg);
+}
+
+.grid-item.app {
+    flex-direction: column;
+    text-decoration: none;
+    color: var(--text-primary);
+    grid-column: span 1;
+    grid-row: span 1;
+}
+
+.app-icon {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    margin-bottom: 5px;
+}
+
+.app-name {
+    font-size: 12px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    padding: 0 5px;
+}
+
+.widget-content {
+    width: 100%;
+    height: 100%;
+}
+
+.widget-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 16px;
+}
+
+/* --- Edit Mode --- */
+.edit-mode .grid-item {
+    cursor: move;
+}
+
+.edit-mode .grid-item .widget-content,
+.edit-mode .grid-item .app-content {
+    pointer-events: none;
+}
+
+.remove-btn {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #ff3b30;
+    color: white;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10;
+    border: 2px solid var(--modal-bg);
+}
+
+.edit-mode .remove-btn {
+    display: flex;
+}
+
+.resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    cursor: nwse-resize;
+    z-index: 10;
+    display: none;
+}
+
+.edit-mode .resize-handle {
+    display: block;
+}
+
+/* --- Custom Context Menu --- */
+#context-menu {
+    position: fixed;
+    z-index: 10000;
+    background-color: var(--item-bg);
+    border-radius: 8px;
+    padding: 8px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    display: none;
+}
+
+.context-menu-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.context-menu-item:hover {
+    background-color: var(--accent-color);
+}
+
+.context-menu-separator {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 4px 0;
+}
+
+/* --- Modals --- */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--modal-backdrop);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: var(--modal-bg);
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+}
+
+.modal-title {
+    margin-top: 0;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: #3a3a3c;
+    color: var(--text-primary);
+    box-sizing: border-box;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+/* --- App/Widget Gallery Specifics --- */
+#widget-gallery, #app-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.gallery-item {
+    background-color: #3a3a3c;
+    padding: 16px;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.gallery-item:hover {
+    background-color: #4a4a4c;
+}
+
+.gallery-item img {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 8px;
+}

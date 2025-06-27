@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Tab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="grid-container"></div>
+
+<div id="context-menu"></div>
+
+<!-- Modals -->
+<div id="settings-modal" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+        <h2 class="modal-title">Settings</h2>
+        <form id="settings-form">
+            <div class="form-group">
+                <label for="grid-cols">Grid Columns</label>
+                <input type="number" id="grid-cols" min="4" max="24" required>
+            </div>
+            <div class="form-group">
+                <label for="grid-rows">Grid Rows</label>
+                <input type="number" id="grid-rows" min="4" max="24" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+        </form>
+        <button class="modal-close">&times;</button>
+    </div>
+</div>
+
+<div id="wallpaper-modal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+        <h2 class="modal-title">Change Wallpaper</h2>
+        <div class="form-group">
+            <label>Type</label>
+            <select id="wallpaper-type">
+                <option value="color">Solid Color</option>
+                <option value="url">Image from URL</option>
+                <option value="upload">Upload Image</option>
+            </select>
+        </div>
+        <div id="wallpaper-input-color" class="form-group">
+            <label for="wallpaper-color">Choose Color</label>
+            <input type="color" id="wallpaper-color" value="#1c1c1e">
+        </div>
+        <div id="wallpaper-input-url" class="form-group" style="display: none;">
+            <label for="wallpaper-url">Image URL</label>
+            <input type="url" id="wallpaper-url" placeholder="https://example.com/image.png">
+        </div>
+        <div id="wallpaper-input-upload" class="form-group" style="display: none;">
+            <label for="wallpaper-upload">Upload File</label>
+            <input type="file" id="wallpaper-upload" accept="image/*">
+        </div>
+        <button id="save-wallpaper-btn" class="btn btn-primary">Set Wallpaper</button>
+        <button class="modal-close">&times;</button>
+    </div>
+</div>
+
+<div id="app-modal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <h2 class="modal-title">Add App</h2>
+        <form id="app-form">
+            <input type="hidden" id="app-id">
+            <div class="form-group">
+                <label for="app-name">App Name</label>
+                <input type="text" id="app-name" required>
+            </div>
+            <div class="form-group">
+                <label for="app-url">URL</label>
+                <input type="url" id="app-url" required>
+            </div>
+            <div class="form-group">
+                <label for="app-icon-type">Icon Type</label>
+                <select id="app-icon-type">
+                    <option value="favicon">Use Website Favicon</option>
+                    <option value="url">Icon from URL</option>
+                    <option value="upload">Upload Icon</option>
+                </select>
+            </div>
+            <div id="app-icon-url-group" class="form-group" style="display:none;">
+                <label for="app-icon-url">Icon URL</label>
+                <input type="url" id="app-icon-url">
+            </div>
+            <div id="app-icon-upload-group" class="form-group" style="display:none;">
+                <label for="app-icon-upload">Upload Icon</label>
+                <input type="file" id="app-icon-upload" accept="image/*">
+            </div>
+            <button type="submit" class="btn btn-primary">Save App</button>
+            <button type="button" id="remove-app-btn" class="btn" style="background-color:#ff3b30; color:white; display:none;">Remove App</button>
+        </form>
+        <button class="modal-close">&times;</button>
+    </div>
+</div>
+
+<div id="widget-modal" class="modal">
+    <div class="modal-content" style="max-width: 800px; width: 100%;">
+        <h2 class="modal-title">Add Widget</h2>
+        <input type="search" id="widget-search" placeholder="Search widgets..." style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #3a3a3c; color: var(--text-primary); box-sizing: border-box; margin-bottom: 20px;">
+        <div id="widget-gallery"></div>
+        <button class="modal-close">&times;</button>
+    </div>
+</div>
+
+<div id="widget-config-modal" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+        <h2 id="widget-config-title" class="modal-title">Configure Widget</h2>
+        <form id="widget-config-form"></form>
+        <button class="modal-close">&times;</button>
+    </div>
+</div>
+
+
+<script src="scripts.js"></script>
+</body>
+</html>
