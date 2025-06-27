@@ -135,5 +135,64 @@ const WIDGET_DEFINITIONS = [
                 }
             });
         }
+    },
+    {
+        name: 'Debug Info',
+        id: 'debug-info',
+        type: 'html',
+        htmlcode: `
+        <style>
+            .debug-container { 
+                font-family: monospace; 
+                font-size: 11px; 
+                padding: 10px; 
+                white-space: pre; 
+                overflow: auto;
+                height: 100%;
+                width: 100%;
+                box-sizing: border-box;
+                background-color: rgba(0,0,0,0.3);
+                border-radius: 12px;
+            }
+        </style>
+        <div class="debug-container"></div>
+    `,
+        config: [],
+        defaultSize: { w: 2, h: 1 },
+        category: 'Utility',
+        javascript: function(widgetElement, itemConfig, globalConfig) {
+            requestAnimationFrame(() => {
+                const container = widgetElement.querySelector('.debug-container');
+                if (!container) return;
+
+                // Create a temporary version of the config without the bulky item list
+                const configCopy = { ...globalConfig, items: `[${globalConfig.items.length} items]` };
+
+                // Use JSON.stringify for nice formatting
+                container.textContent = JSON.stringify(configCopy, null, 2);
+            });
+        }
+    },
+    {
+        name: 'Iframe Widget',
+        id: 'iframe-widget',
+        type: 'html',
+        // The HTML code is just a simple iframe that fills the widget space
+        htmlcode: `
+        <iframe src="{{iframe_url}}" style="width:100%; height:100%; border:0; border-radius:16px;"></iframe>
+    `,
+        // It has one config option: the URL for the iframe
+        config: [
+            {
+                name: 'iframe_url',
+                type: 'text',
+                label: 'Iframe URL',
+                default: 'https://supermario-game.com/mario-game/mario.html'
+            }
+        ],
+        defaultSize: { w: 2, h: 1 },
+        category: 'Fun',
+        // This widget has no custom javascript logic needed
+        javascript: null
     }
 ];

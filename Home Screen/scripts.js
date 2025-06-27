@@ -364,23 +364,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function openAppModal(id = null) {
-        const form = document.getElementById('app-form');
-        form.reset();
-        document.getElementById('app-icon-url-group').style.display = 'none';
-        document.getElementById('app-icon-upload-group').style.display = 'none';
-
-        const removeBtn = document.getElementById('remove-app-btn');
+        const appModalContent = document.getElementById('app-modal-content');
+        const appSidebar = document.getElementById('app-modal-sidebar');
 
         if (id) {
-            // If editing, force open the custom view
+            // --- Change: Hide sidebar when editing ---
+            appSidebar.style.display = 'none';
+            // Ensure content view takes up full space
+            appModalContent.style.width = '100%';
+
+            // Force open the custom view for editing
             switchAppCategory(APP_CATEGORIES[0]);
+
             const item = config.items.find(i => i.id === id);
             document.getElementById('app-id').value = id;
             document.getElementById('app-name').value = item.name;
             document.getElementById('app-url').value = item.url;
             document.getElementById('remove-app-btn').style.display = 'inline-block';
+
         } else {
-            // If adding, setup the full category view
+            // --- Change: Show sidebar when adding a new app ---
+            appSidebar.style.display = 'block';
+            appModalContent.style.width = ''; // Reset width
+
+            // Setup the full category view
             setupAppModal();
             document.getElementById('app-form').reset();
             document.getElementById('app-id').value = '';
