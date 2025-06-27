@@ -1,67 +1,12 @@
 // --- PRE-BUILT WIDGETS --- //
 // This is where you can add more widgets in the future.
-const WIDGET_DEFINITIONS = [
-    {
-        name: 'Digital Clock',
-        id: 'digital-clock',
-        type: 'html',
-        htmlcode: `
-                    <style>
-                        .clock-container {
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            justify-content: center;
-                            width: 100%;
-                            height: 100%;
-                            padding: 10px;
-                            box-sizing: border-box;
-                            font-family: 'Inter', sans-serif;
-                            color: white;
-                            text-shadow: 0 0 5px rgba(0,0,0,0.5);
-                        }
-                        .clock-time {
-                            font-size: clamp(2rem, 10vw, 3rem);
-                            font-weight: 600;
-                        }
-                        .clock-date {
-                            font-size: clamp(0.8rem, 4vw, 1rem);
-                            opacity: 0.8;
-                        }
-                    </style>
-                    <div class="clock-container">
-                        <div class="clock-time" id="clock-time-el"></div>
-                        <div class="clock-date" id="clock-date-el"></div>
-                    </div>
-                    <script>
-                        (function() {
-                            // Use a unique ID based on the container to avoid conflicts
-                            const containerId = document.currentScript.parentElement.id;
-                            const timeEl = document.querySelector('#' + containerId + ' .clock-time');
-                            const dateEl = document.querySelector('#' + containerId + ' .clock-date');
 
-                            if (!timeEl || !dateEl) return;
 
-                            function updateClock() {
-                                const now = new Date();
-                                timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                dateEl.textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
-                            }
-
-                            const intervalId = setInterval(updateClock, 1000);
-                            // Store interval to clear it later if the widget is removed
-                            timeEl.closest('.grid-item').dataset.intervalId = intervalId;
-
-                            updateClock();
-                        })();
-                    <\/script>
-                `,
-        config: [],
-        defaultSize: { w: 2, h: 1 },
-        category: 'Utility'
-    }
-    // Add more widgets here, e.g., weather, notes, etc.
-];
+// --- Add near the top of scripts.js ---
+let config = {};
+let isEditMode = false;
+let currentDrag = { element: null, id: null };
+let currentResize = { active: false, id: null, element: null, startX: 0, startY: 0, startW: 0, startH: 0 }; // Add this line
 
 // --- CORE LOGIC --- //
 document.addEventListener('DOMContentLoaded', () => {
@@ -117,12 +62,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+// --- Replace your existing applyGridSettings function ---
     function applyGridSettings() {
-        gridContainer.style.gridTemplateColumns = `repeat(${config.grid.cols}, 1fr)`;
-        gridContainer.style.gridTemplateRows = `repeat(${config.grid.rows}, 1fr)`;
-        const itemSize = `calc((100vh - 40px - ${(config.grid.rows -1) * 10}px) / ${config.grid.rows})`;
-        document.documentElement.style.setProperty('--grid-item-size', itemSize);
+        const { cols, rows } = config.grid;
+        gridContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        gridContainer.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+        // Set CSS variables for the visual grid background (Fix for Bug #1)
+        document.documentElement.style.setProperty('--grid-cols', cols);
+        document.documentElement.style.setProperty('--grid-rows', rows);
     }
+
+// --- Add this block of code inside your init() function ---
+// This ensures the grid is redrawn on window resize
+    window.addEventListener('resize', applyGridSettings);
+
+// This ensures the grid is redrawn on window resize
+    window.addEventListener('resize', applyGridSettings);
 
     function renderAllItems() {
         gridContainer.innerHTML = '';
@@ -155,12 +111,20 @@ document.addEventListener('DOMContentLoaded', () => {
             itemEl.classList.add('app');
             itemEl.href = item.url;
             itemEl.target = "_blank";
-            itemEl.innerHTML += `
-                        <div class="app-content">
-                            <img src="${item.icon}" class="app-icon" onerror="this.src='https://placehold.co/64x64/3a3a3c/ffffff?text=X'">
-                            <span class="app-name">${item.name}</span>
-                        </div>
-                    `;
+            if (item.type === 'app') {
+                itemEl.classList.add('app');
+                // The main element is no longer a link. The click is handled by JS.
+                itemEl.innerHTML += `
+        <div class="app-content">
+            <img src="${item.icon}" class="app-icon" onerror="this.src='https://placehold.co/64x64/3a3a3c/ffffff?text=X'">
+            <span class="app-name">${item.name}</span>
+        </div>
+    `;
+                itemEl.appendChild(removeBtn); // Re-append remove button
+                itemEl.addEventListener('click', (e) => {
+                    if(!isEditMode) window.open(item.url, '_blank');
+                });
+            }
             // Re-append the remove button because innerHTML overwrites it
             itemEl.appendChild(removeBtn);
             itemEl.addEventListener('click', (e) => {
@@ -173,8 +137,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const content = document.createElement('div');
                 content.className = 'widget-content';
 
+                // Start with the base HTML
                 let html = widgetDef.htmlcode;
-                // Replace config placeholders, e.g., {{location}}
+
+                // Replace the unique ID placeholder
+                html = html.replace(new RegExp(`{{id}}`, 'g'), item.id);
+
+                // Replace config placeholders, e.g., {{greetingMessage}}
                 if(item.config) {
                     for(const key in item.config) {
                         html = html.replace(new RegExp(`{{${key}}}`, 'g'), item.config[key]);
@@ -182,19 +151,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 content.innerHTML = html;
 
-                // Execute scripts within the widget
+                itemEl.appendChild(content);
+
+                // Execute scripts within the widget AFTER it's in the DOM
                 setTimeout(() => {
-                    content.querySelectorAll('script').forEach(script => {
+                    content.querySelectorAll('script').forEach(originalScript => {
                         const newScript = document.createElement('script');
-                        newScript.textContent = script.textContent;
-                        itemEl.appendChild(newScript);
+                        newScript.textContent = originalScript.textContent;
+                        // Append to the item element itself to ensure proper execution context
+                        itemEl.appendChild(newScript).remove();
                     });
                 }, 0);
 
-                itemEl.appendChild(content);
-
                 const resizeHandle = document.createElement('div');
                 resizeHandle.className = 'resize-handle';
+                resizeHandle.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                    handleResizeMouseDown(e, item.id);
+                });
                 itemEl.appendChild(resizeHandle);
             }
         }
@@ -341,37 +315,86 @@ document.addEventListener('DOMContentLoaded', () => {
         openModal(modals.widget);
     }
 
-    function openWidgetConfigModal(instanceId, widgetId) {
+// --- Replace the entire openWidgetConfigModal function in scripts.js ---
+
+    function openWidgetConfigModal(instanceId, widgetIdToAdd = null) {
         const item = config.items.find(i => i.id === instanceId);
-        const widgetDef = WIDGET_DEFINITIONS.find(w => w.id === (item ? item.widgetId : widgetId));
+        const widgetDef = WIDGET_DEFINITIONS.find(w => w.id === (item ? item.widgetId : widgetIdToAdd));
 
         if (!widgetDef) return;
+
+        // If editing a widget that has no config options, do nothing.
+        if (item && widgetDef.config.length === 0) {
+            alert("This widget has no options to configure.");
+            return;
+        }
+
+        // If adding a new widget that has no config options, just add it directly.
+        if (!item && widgetDef.config.length === 0) {
+            addItem('widget', { widgetId: widgetDef.id, size: widgetDef.defaultSize, config: {} });
+            return;
+        }
 
         const form = document.getElementById('widget-config-form');
         form.innerHTML = '';
 
         document.getElementById('widget-config-title').textContent = `Configure ${widgetDef.name}`;
 
-        if (widgetDef.config.length === 0) {
-            addItem('widget', { widgetId: widgetDef.id, size: widgetDef.defaultSize });
-            return; // No config needed, just add it.
-        }
-
-        let fields = '';
+        let fieldsHTML = '';
         widgetDef.config.forEach(field => {
-            fields += `<div class="form-group">
-                        <label for="config-${field.name}">${field.label}</label>
-                        <input type="text" id="config-${field.name}" name="${field.name}" value="${item?.config?.[field.name] || ''}" required>
-                    </div>`;
+            const savedValue = item?.config?.[field.name] ?? field.default;
+            fieldsHTML += `<div class="form-group">`;
+
+            if (field.type !== 'checkbox') {
+                fieldsHTML += `<label for="config-${field.name}">${field.label}</label>`;
+            }
+
+            switch(field.type) {
+                case 'text':
+                    fieldsHTML += `<input type="text" id="config-${field.name}" name="${field.name}" value="${savedValue}">`;
+                    break;
+                case 'checkbox':
+                    fieldsHTML += `
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="config-${field.name}" name="${field.name}" ${savedValue ? 'checked' : ''} style="width: auto; margin-right: 10px;">
+                        ${field.label}
+                    </label>
+                `;
+                    break;
+                case 'dropdown':
+                    fieldsHTML += `<select id="config-${field.name}" name="${field.name}">`;
+                    field.options.forEach(opt => {
+                        fieldsHTML += `<option value="${opt.value}" ${savedValue === opt.value ? 'selected' : ''}>${opt.label}</option>`;
+                    });
+                    fieldsHTML += `</select>`;
+                    break;
+            }
+            fieldsHTML += `</div>`;
         });
 
-        fields += `<input type="hidden" name="instanceId" value="${instanceId || ''}">`;
-        fields += `<input type="hidden" name="widgetId" value="${widgetDef.id}">`;
-        fields += `<button type="submit" class="btn btn-primary">Save Widget</button>`;
+        fieldsHTML += `<input type="hidden" name="instanceId" value="${instanceId || ''}">`;
+        fieldsHTML += `<input type="hidden" name="widgetId" value="${widgetDef.id}">`;
 
-        form.innerHTML = fields;
+        fieldsHTML += `<div style="display:flex; justify-content: space-between; margin-top: 20px;">`;
+        fieldsHTML += `<button type="submit" class="btn btn-primary">Save Widget</button>`;
+        if (item) { // Only show remove button if editing an existing widget
+            fieldsHTML += `<button type="button" id="remove-widget-btn" class="btn" style="background-color:#ff3b30; color:white;">Remove Widget</button>`;
+        }
+        fieldsHTML += `</div>`;
+
+        form.innerHTML = fieldsHTML;
 
         form.onsubmit = handleWidgetConfigSave;
+
+        if (item) {
+            document.getElementById('remove-widget-btn').onclick = () => {
+                if (confirm('Are you sure you want to remove this widget?')) {
+                    removeItem(instanceId);
+                    modals.widgetConfig.style.display = 'none';
+                }
+            };
+        }
+
         openModal(modals.widgetConfig);
     }
 
@@ -475,20 +498,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+// --- Replace the entire handleWidgetConfigSave function in scripts.js ---
+
     function handleWidgetConfigSave(e) {
         e.preventDefault();
         const formData = new FormData(e.target);
-        const data = Object.fromEntries(formData.entries());
-        const { instanceId, widgetId, ...widgetConfig } = data;
+        const widgetId = formData.get('widgetId');
+        const instanceId = formData.get('instanceId');
 
         const widgetDef = WIDGET_DEFINITIONS.find(w => w.id === widgetId);
+        if (!widgetDef) return;
 
-        if(instanceId) { // Editing
-            updateItem(instanceId, { config: widgetConfig });
-        } else { // Adding
+        const newConfig = {};
+        // Process form data, handling checkboxes correctly
+        widgetDef.config.forEach(field => {
+            if (field.type === 'checkbox') {
+                newConfig[field.name] = formData.has(field.name);
+            } else {
+                newConfig[field.name] = formData.get(field.name);
+            }
+        });
+
+        if (instanceId) { // Editing existing widget
+            updateItem(instanceId, { config: newConfig });
+        } else { // Adding new widget
             addItem('widget', {
                 widgetId: widgetId,
-                config: widgetConfig,
+                config: newConfig,
                 size: widgetDef.defaultSize
             });
         }
@@ -655,6 +691,90 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             gallery.appendChild(item);
         });
+    }
+    // --- Add these three new functions to the end of scripts.js ---
+
+    function handleResizeMouseDown(e, itemId) {
+        if (!isEditMode) return;
+
+        e.preventDefault();
+
+        const item = config.items.find(i => i.id === itemId);
+        const element = document.getElementById(itemId);
+
+        currentResize = {
+            active: true,
+            id: itemId,
+            element: element,
+            startX: e.clientX,
+            startY: e.clientY,
+            startW: item.size.w,
+            startH: item.size.h,
+        };
+
+        document.addEventListener('mousemove', handleResizeMouseMove);
+        document.addEventListener('mouseup', handleResizeMouseUp, { once: true });
+    }
+
+    function handleResizeMouseMove(e) {
+        if (!currentResize.active) return;
+
+        // Calculate grid cell dimensions
+        const colWidth = gridContainer.clientWidth / config.grid.cols;
+        const rowHeight = gridContainer.clientHeight / config.grid.rows;
+
+        // Calculate mouse delta
+        const deltaX = e.clientX - currentResize.startX;
+        const deltaY = e.clientY - currentResize.startY;
+
+        // Calculate how many grid units the delta represents
+        const colsToAdd = Math.round(deltaX / colWidth);
+        const rowsToAdd = Math.round(deltaY / rowHeight);
+
+        let newWidth = currentResize.startW + colsToAdd;
+        let newHeight = currentResize.startH + rowsToAdd;
+
+        // Ensure minimum size is 1x1
+        if (newWidth < 1) newWidth = 1;
+        if (newHeight < 1) newHeight = 1;
+
+        // Apply visual update in real-time
+        currentResize.element.style.gridColumnEnd = `span ${newWidth}`;
+        currentResize.element.style.gridRowEnd = `span ${newHeight}`;
+    }
+
+    function handleResizeMouseUp(e) {
+        if (!currentResize.active) return;
+
+        // Same calculation as in mousemove to get the final size
+        const colWidth = gridContainer.clientWidth / config.grid.cols;
+        const rowHeight = gridContainer.clientHeight / config.grid.rows;
+        const deltaX = e.clientX - currentResize.startX;
+        const deltaY = e.clientY - currentResize.startY;
+        const colsToAdd = Math.round(deltaX / colWidth);
+        const rowsToAdd = Math.round(deltaY / rowHeight);
+
+        let newWidth = currentResize.startW + colsToAdd;
+        let newHeight = currentResize.startH + rowsToAdd;
+
+        if (newWidth < 1) newWidth = 1;
+        if (newHeight < 1) newHeight = 1;
+
+        // Update the config object
+        const itemIndex = config.items.findIndex(i => i.id === currentResize.id);
+        if(itemIndex > -1) {
+            config.items[itemIndex].size.w = newWidth;
+            config.items[itemIndex].size.h = newHeight;
+            saveConfig();
+        }
+
+        // Clean up
+        document.removeEventListener('mousemove', handleResizeMouseMove);
+        currentResize = { active: false, id: null, element: null };
+
+        // Re-render the grid to make the change permanent
+        renderAllItems();
+        toggleEditMode(true); // Keep edit mode on
     }
 
     // --- START THE APP --- //

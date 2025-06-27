@@ -19,6 +19,7 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     color: var(--text-primary);
+    background-attachment: fixed; /* Add this line */
     margin: 0;
     overflow: hidden;
     transition: background-image 0.5s ease-in-out;
@@ -40,10 +41,16 @@ body {
     content: '';
     position: absolute;
     inset: 0;
+    /* This background-image is a clever way to draw grid lines */
     background-image:
             linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
-    background-size: var(--grid-item-size) var(--grid-item-size);
+
+    /* This calculation ensures the background grid matches the CSS grid perfectly */
+    background-size:
+            calc(100% / var(--grid-cols, 12))
+            calc(100% / var(--grid-rows, 8));
+
     pointer-events: none;
     z-index: 0;
 }
@@ -69,17 +76,30 @@ body {
     z-index: 1000;
 }
 
+/* Make sure the base grid item doesn't have a hover effect, as we moved it to app-content */
 .grid-item:not(.edit-mode-item):hover {
+    /* We only want widgets to have this transform now */
+    /* transform: translateY(-5px); */
+}
+.grid-item.widget:not(.edit-mode-item):hover {
     transform: translateY(-5px);
     background-color: var(--item-hover-bg);
 }
-
+.grid-item.app:hover .app-content {
+    background-color: rgba(255, 255, 255, 0.15);
+}
 .grid-item.app {
     flex-direction: column;
     text-decoration: none;
     color: var(--text-primary);
     grid-column: span 1;
     grid-row: span 1;
+
+    /* Make the app grid item itself transparent */
+    background-color: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
 }
 
 .app-icon {
@@ -87,6 +107,9 @@ body {
     height: 48px;
     object-fit: contain;
     margin-bottom: 5px;
+    /* Prevents the icon from being draggable which interferes with grid dragging */
+    -webkit-user-drag: none;
+    user-select: none;
 }
 
 .app-name {
@@ -97,6 +120,8 @@ body {
     text-overflow: ellipsis;
     width: 100%;
     padding: 0 5px;
+    /* Add text shadow for readability on any wallpaper */
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .widget-content {
@@ -115,7 +140,15 @@ body {
 .edit-mode .grid-item {
     cursor: move;
 }
-
+.app-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 12px;
+    transition: background-color 0.2s ease-in-out;
+}
 .edit-mode .grid-item .widget-content,
 .edit-mode .grid-item .app-content {
     pointer-events: none;
@@ -123,8 +156,8 @@ body {
 
 .remove-btn {
     position: absolute;
-    top: -5px;
-    right: -5px;
+    top: 10px;
+    right: 10px;
     background-color: #ff3b30;
     color: white;
     border-radius: 50%;
@@ -137,6 +170,8 @@ body {
     cursor: pointer;
     z-index: 10;
     border: 2px solid var(--modal-bg);
+    /* Add transform to position it correctly without being clipped by overflow */
+    transform: translate(40%, -40%);
 }
 
 .edit-mode .remove-btn {
