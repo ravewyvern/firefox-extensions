@@ -51,8 +51,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Storage (using localStorage as a stand-in for browser.storage) --- //
     function loadConfig() {
-        const savedConfig = localStorage.getItem('launcherConfig');
-        config = savedConfig ? JSON.parse(savedConfig) : defaultConfig;
+        const savedConfig = JSON.parse(localStorage.getItem('launcherConfig')) || {};
+
+        // Deeply merge the default config with the saved config.
+        // This ensures that new settings (like `preferences`) are added to older saved states.
+        config = {
+            ...defaultConfig,
+            ...savedConfig,
+            grid: { ...defaultConfig.grid, ...(savedConfig.grid || {}) },
+            wallpaper: { ...defaultConfig.wallpaper, ...(savedConfig.wallpaper || {}) },
+            preferences: { ...defaultConfig.preferences, ...(savedConfig.preferences || {}) },
+            items: savedConfig.items || defaultConfig.items
+        };
     }
 
     function saveConfig() {
@@ -139,65 +149,81 @@ document.addEventListener('DOMContentLoaded', () => {
             itemEl.classList.add('app');
             itemEl.href = item.url;
             itemEl.target = "_blank";
+
             if (item.type === 'app') {
                 itemEl.classList.add('app');
-                // The main element is no longer a link. The click is handled by JS.
-                itemEl.innerHTML += `
-        <div class="app-content">
-            <img src="${item.icon}" class="app-icon" onerror="this.src='https://placehold.co/64x64/3a3a3c/ffffff?text=X'">
-            <span class="app-name">${item.name}</span>
-        </div>
-    `;
-                itemEl.appendChild(removeBtn); // Re-append remove button
+
+                const appContent = document.createElement('div');
+                appContent.className = 'app-content';
+
+                const appIcon = document.createElement('img');
+                appIcon.className = 'app-icon';
+
+                // --- Change: Set the event listener programmatically to avoid CSP errors ---
+                appIcon.addEventListener('error', function() {
+                    // If the icon fails to load, use a placeholder.
+                    this.src = 'https://placehold.co/64x64/3a3a3c/ffffff?text=X';
+                });
+                appIcon.src = item.icon; // Now set the source AFTER the listener is attached.
+
+                const appName = document.createElement('span');
+                appName.className = 'app-name';
+                appName.textContent = item.name;
+
+                appContent.appendChild(appIcon);
+                appContent.appendChild(appName);
+                itemEl.appendChild(appContent);
+
                 itemEl.addEventListener('click', (e) => {
                     if(!isEditMode) window.open(item.url, '_blank');
                 });
+
+            itemEl.appendChild(removeBtn); // Re-append remove button
             }
-            // Re-append the remove button because innerHTML overwrites it
-            itemEl.appendChild(removeBtn);
-            itemEl.addEventListener('click', (e) => {
-                if(!isEditMode) window.open(item.url, '_blank');
-            });
         } else if (item.type === 'widget') {
             itemEl.classList.add('widget');
+            itemEl.style.flexDirection = 'column';
             const widgetDef = WIDGET_DEFINITIONS.find(w => w.id === item.widgetId);
             if (widgetDef) {
+
+                if (itemEl.dataset.intervalId) {
+                    clearInterval(parseInt(itemEl.dataset.intervalId));
+                }
+
                 const content = document.createElement('div');
                 content.className = 'widget-content';
+                content.style.flexGrow = '1';
 
-                // Start with the base HTML
                 let html = widgetDef.htmlcode;
-
-                // Replace the unique ID placeholder
-                html = html.replace(new RegExp(`{{id}}`, 'g'), item.id);
-
-                // Replace config placeholders, e.g., {{greetingMessage}}
                 if(item.config) {
                     for(const key in item.config) {
                         html = html.replace(new RegExp(`{{${key}}}`, 'g'), item.config[key]);
                     }
                 }
                 content.innerHTML = html;
-
+                itemEl.innerHTML = ''; // Clear previous content before appending new
                 itemEl.appendChild(content);
+
+                if (widgetDef.javascript && typeof widgetDef.javascript === 'function') {
+                    widgetDef.javascript(itemEl, item, config);
+                }
 
                 // --- Fix: Add the name INSIDE the grid item ---
                 if (config.preferences.showWidgetNames) {
                     const nameEl = document.createElement('div');
                     nameEl.className = 'widget-name-display';
                     nameEl.textContent = widgetDef.name;
-                    itemEl.appendChild(nameEl); // Append, don't insert after
+                    itemEl.appendChild(nameEl);
                 }
 
-                // Execute scripts within the widget AFTER it's in the DOM
-                setTimeout(() => {
-                    content.querySelectorAll('script').forEach(originalScript => {
-                        const newScript = document.createElement('script');
-                        newScript.textContent = originalScript.textContent;
-                        // Append to the item element itself to ensure proper execution context
-                        itemEl.appendChild(newScript).remove();
-                    });
-                }, 0);
+                const removeBtn = document.createElement('div');
+                removeBtn.className = 'remove-btn';
+                removeBtn.innerHTML = '&times;';
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    removeItem(item.id);
+                });
+                itemEl.appendChild(removeBtn);
 
                 const resizeHandle = document.createElement('div');
                 resizeHandle.className = 'resize-handle';

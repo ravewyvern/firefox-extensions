@@ -31,32 +31,36 @@ const WIDGET_DEFINITIONS = [
                         <div class="clock-time" id="clock-time-el"></div>
                         <div class="clock-date" id="clock-date-el"></div>
                     </div>
-                    <script>
-                        (function() {
-                            // Use a unique ID based on the container to avoid conflicts
-                            const containerId = document.currentScript.parentElement.id;
-                            const timeEl = document.querySelector('#' + containerId + ' .clock-time');
-                            const dateEl = document.querySelector('#' + containerId + ' .clock-date');
-
-                            if (!timeEl || !dateEl) return;
-
-                            function updateClock() {
-                                const now = new Date();
-                                timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                dateEl.textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
-                            }
-
-                            const intervalId = setInterval(updateClock, 1000);
-                            // Store interval to clear it later if the widget is removed
-                            timeEl.closest('.grid-item').dataset.intervalId = intervalId;
-
-                            updateClock();
-                        })();
-                    <\/script>
                 `,
         config: [],
         defaultSize: { w: 2, h: 1 },
-        category: 'Utility'
+        category: 'Utility',
+        javascript: function(widgetElement, itemConfig, globalConfig) {
+            requestAnimationFrame(() => {
+                const timeEl = widgetElement.querySelector('.clock-time');
+                const dateEl = widgetElement.querySelector('.clock-date');
+                if (!timeEl || !dateEl) return; // Exit gracefully
+
+                function updateClock() {
+                    const now = new Date();
+                    // Use the PASSED-IN globalConfig, not the global variable
+                    const hourFormat = globalConfig.preferences.hourFormat === '24'
+                        ? { hour12: false }
+                        : { hour12: true };
+                    timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', ...hourFormat });
+                    dateEl.textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
+                }
+
+                // Clear any previous interval to prevent memory leaks on re-render
+                if (widgetElement.dataset.intervalId) {
+                    clearInterval(parseInt(widgetElement.dataset.intervalId));
+                }
+
+                const intervalId = setInterval(updateClock, 1000);
+                widgetElement.dataset.intervalId = intervalId;
+                updateClock();
+            });
+        }
     },
     {
         name: 'Greeting',
@@ -64,7 +68,7 @@ const WIDGET_DEFINITIONS = [
         type: 'html',
         htmlcode: `
             <style>
-                .greeting-container-{{id}} {
+                .greeting-container {
                     display: flex;
                     flex-direction: column;
                     align-items: {{textAlign}};
@@ -76,34 +80,20 @@ const WIDGET_DEFINITIONS = [
                     font-family: 'Inter', sans-serif;
                     color: white;
                 }
-                .greeting-message-{{id}} {
+                .greeting-message {
                     font-size: 1.5em;
                     font-weight: 600;
                 }
-                .greeting-name-{{id}} {
+                .greeting-name {
                     font-size: 1.1em;
                     opacity: 0.8;
                     margin-top: 5px;
                 }
             </style>
-            <div class="greeting-container-{{id}}" id="container-{{id}}">
-                <div class="greeting-message-{{id}}">{{greetingMessage}}</div>
-                <div class="greeting-name-{{id}}"></div>
+            <div class="greeting-container" id="container">
+                <div class="greeting-message">{{greetingMessage}}</div>
+                <div class="greeting-name"></div>
             </div>
-            <script>
-                (function() {
-                    const container = document.getElementById('container-{{id}}');
-                    const nameEl = container.querySelector('.greeting-name-{{id}}');
-                    const showName = '{{showName}}' === 'true';
-                    
-                    if (showName) {
-                        // In a real app, you'd fetch the user's name. We'll use a placeholder.
-                        nameEl.textContent = 'Welcome, User!';
-                    } else {
-                        nameEl.style.display = 'none';
-                    }
-                })();
-            <\/script>
         `,
         config: [
             {
@@ -131,6 +121,19 @@ const WIDGET_DEFINITIONS = [
             }
         ],
         defaultSize: { w: 2, h: 1 },
-        category: 'Utility'
-    },
+        category: 'Utility',
+        javascript: function(widgetElement, itemConfig, globalConfig) {
+            requestAnimationFrame(() => {
+                const nameEl = widgetElement.querySelector('.greeting-name');
+                if (!nameEl) return; // Exit gracefully if element not found
+
+                const showName = itemConfig.config.showName;
+                if (showName) {
+                    nameEl.textContent = 'Welcome, User!';
+                } else {
+                    nameEl.style.display = 'none';
+                }
+            });
+        }
+    }
 ];
