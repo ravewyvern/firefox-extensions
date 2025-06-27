@@ -15,9 +15,10 @@
 
 <!-- Modals -->
 <div id="settings-modal" class="modal">
-    <div class="modal-content" style="max-width: 400px;">
+    <div class="modal-content" style="max-width: 500px;">
         <h2 class="modal-title">Settings</h2>
         <form id="settings-form">
+            <h3 class="settings-subtitle">Grid</h3>
             <div class="form-group">
                 <label for="grid-cols">Grid Columns</label>
                 <input type="number" id="grid-cols" min="4" max="24" required>
@@ -26,6 +27,36 @@
                 <label for="grid-rows">Grid Rows</label>
                 <input type="number" id="grid-rows" min="4" max="24" required>
             </div>
+
+            <h3 class="settings-subtitle">Preferences</h3>
+            <div class="form-group">
+                <label for="pref-hour-format">Time Format</label>
+                <select id="pref-hour-format">
+                    <option value="12">12-Hour</option>
+                    <option value="24">24-Hour</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="pref-temp-unit">Temperature Unit</label>
+                <select id="pref-temp-unit">
+                    <option value="fahrenheit">Fahrenheit (°F)</option>
+                    <option value="celsius">Celsius (°C)</option>
+                </select>
+            </div>
+            <h3 class="settings-subtitle">Appearance</h3>
+            <div class="form-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="pref-transparent-items">
+                    <span>Use transparent background for items</span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="pref-show-widget-names">
+                    <span>Show names under widgets</span>
+                </label>
+            </div>
+
             <button type="submit" class="btn btn-primary">Save Settings</button>
         </form>
         <button class="modal-close">&times;</button>
@@ -61,41 +92,53 @@
 </div>
 
 <div id="app-modal" class="modal">
-    <div class="modal-content" style="max-width: 600px;">
-        <h2 class="modal-title">Add App</h2>
-        <form id="app-form">
-            <input type="hidden" id="app-id">
-            <div class="form-group">
-                <label for="app-name">App Name</label>
-                <input type="text" id="app-name" required>
+    <div class="modal-content" style="max-width: 800px; width:100%; display: flex; padding: 0;">
+        <div id="app-modal-sidebar">
+            <ul id="app-categories-list">
+            </ul>
+        </div>
+        <div id="app-modal-content">
+            <div id="app-custom-view">
+                <h2 class="modal-title">Add Custom App</h2>
+                <form id="app-form">
+                    <input type="hidden" id="app-id">
+                    <div class="form-group">
+                        <label for="app-name">App Name</label>
+                        <input type="text" id="app-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="app-url">URL</label>
+                        <input type="url" id="app-url" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="app-icon-type">Icon Type</label>
+                        <select id="app-icon-type">
+                            <option value="favicon">Use Website Favicon</option>
+                            <option value="url">Icon from URL</option>
+                            <option value="upload">Upload Icon</option>
+                        </select>
+                    </div>
+                    <div id="app-icon-url-group" class="form-group" style="display:none;">
+                        <label for="app-icon-url">Icon URL</label>
+                        <input type="url" id="app-icon-url">
+                    </div>
+                    <div id="app-icon-upload-group" class="form-group" style="display:none;">
+                        <label for="app-icon-upload">Upload Icon</label>
+                        <input type="file" id="app-icon-upload" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save App</button>
+                    <button type="button" id="remove-app-btn" class="btn" style="background-color:#ff3b30; color:white; display:none;">Remove App</button>
+                </form>
             </div>
-            <div class="form-group">
-                <label for="app-url">URL</label>
-                <input type="url" id="app-url" required>
+            <div id="app-gallery-view" style="display:none;">
+                <h2 id="app-gallery-title" class="modal-title"></h2>
+                <div id="app-gallery">
+                </div>
             </div>
-            <div class="form-group">
-                <label for="app-icon-type">Icon Type</label>
-                <select id="app-icon-type">
-                    <option value="favicon">Use Website Favicon</option>
-                    <option value="url">Icon from URL</option>
-                    <option value="upload">Upload Icon</option>
-                </select>
-            </div>
-            <div id="app-icon-url-group" class="form-group" style="display:none;">
-                <label for="app-icon-url">Icon URL</label>
-                <input type="url" id="app-icon-url">
-            </div>
-            <div id="app-icon-upload-group" class="form-group" style="display:none;">
-                <label for="app-icon-upload">Upload Icon</label>
-                <input type="file" id="app-icon-upload" accept="image/*">
-            </div>
-            <button type="submit" class="btn btn-primary">Save App</button>
-            <button type="button" id="remove-app-btn" class="btn" style="background-color:#ff3b30; color:white; display:none;">Remove App</button>
-        </form>
+        </div>
         <button class="modal-close">&times;</button>
     </div>
 </div>
-
 <div id="widget-modal" class="modal">
     <div class="modal-content" style="max-width: 800px; width: 100%;">
         <h2 class="modal-title">Add Widget</h2>

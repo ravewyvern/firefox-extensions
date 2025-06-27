@@ -8,6 +8,16 @@ let isEditMode = false;
 let currentDrag = { element: null, id: null };
 let currentResize = { active: false, id: null, element: null, startX: 0, startY: 0, startW: 0, startH: 0 }; // Add this line
 
+const GITHUB_REPO_BASE_URL = `https://raw.githubusercontent.com/ravewyvern/firefox-extensions/refs/heads/main/Home_Apps/`;
+
+const APP_CATEGORIES = [
+    { id: 'custom', name: 'Custom' },
+    { id: 'social', name: 'Social', url: `${GITHUB_REPO_BASE_URL}social.json` },
+    { id: 'entertainment', name: 'Entertainment', url: `${GITHUB_REPO_BASE_URL}entertainment.json` },
+    { id: 'productivity', name: 'Productivity', url: `${GITHUB_REPO_BASE_URL}productivity.json` },
+];
+
+
 // --- CORE LOGIC --- //
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
@@ -29,7 +39,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const defaultConfig = {
         grid: { cols: 12, rows: 8 },
         wallpaper: { type: 'color', value: '#1c1c1e' },
-        items: []
+        items: [],
+        // Add the new preferences object
+        preferences: {
+            hourFormat: '12',
+            tempUnit: 'fahrenheit',
+            transparentItems: false,
+            showWidgetNames: false
+        }
     };
 
     // --- Storage (using localStorage as a stand-in for browser.storage) --- //
@@ -61,6 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.style.backgroundImage = `url(${value})`;
         }
     }
+
+
 
 // --- Replace your existing applyGridSettings function ---
     function applyGridSettings() {
@@ -179,6 +198,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Event Listeners --- //
     function setupEventListeners() {
         // Context Menu
+
+        document.getElementById('widget-search').addEventListener('input', (e) => {
+            populateWidgetGallery(e.target.value);
+        });
+
         document.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             showContextMenu(e);
@@ -297,16 +321,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const removeBtn = document.getElementById('remove-app-btn');
 
-        if (id) { // Editing existing app
+        if (id) {
+            // If editing, force open the custom view
+            switchAppCategory(APP_CATEGORIES[0]);
             const item = config.items.find(i => i.id === id);
             document.getElementById('app-id').value = id;
             document.getElementById('app-name').value = item.name;
             document.getElementById('app-url').value = item.url;
-            // Icon logic is complex, simplify for now
-            removeBtn.style.display = 'inline-block';
-        } else { // Adding new app
+            document.getElementById('remove-app-btn').style.display = 'inline-block';
+        } else {
+            // If adding, setup the full category view
+            setupAppModal();
+            document.getElementById('app-form').reset();
             document.getElementById('app-id').value = '';
-            removeBtn.style.display = 'none';
+            document.getElementById('remove-app-btn').style.display = 'none';
         }
         openModal(modals.app);
     }
@@ -678,10 +706,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Widget Gallery --- //
-    function populateWidgetGallery() {
+    function populateWidgetGallery(filter = '') {
         const gallery = document.getElementById('widget-gallery');
         gallery.innerHTML = '';
-        WIDGET_DEFINITIONS.forEach(widget => {
+        const filterText = filter.toLowerCase();
+
+        const filteredWidgets = WIDGET_DEFINITIONS.filter(widget =>
+            widget.name.toLowerCase().includes(filterText) ||
+            widget.category.toLowerCase().includes(filterText)
+        );
+
+        filteredWidgets.forEach(widget => {
             const item = document.createElement('div');
             item.className = 'gallery-item';
             item.innerHTML = `<span>${widget.name}</span>`;
@@ -691,6 +726,70 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             gallery.appendChild(item);
         });
+    }
+
+    function setupAppModal() {
+        const categoriesList = document.getElementById('app-categories-list');
+        categoriesList.innerHTML = '';
+        APP_CATEGORIES.forEach(cat => {
+            const li = document.createElement('li');
+            li.textContent = cat.name;
+            li.dataset.categoryId = cat.id;
+            li.addEventListener('click', () => switchAppCategory(cat));
+            categoriesList.appendChild(li);
+        });
+
+        // Open "Custom" by default
+        switchAppCategory(APP_CATEGORIES[0]);
+    }
+
+    function switchAppCategory(category) {
+        // Highlight active category in sidebar
+        document.querySelectorAll('#app-categories-list li').forEach(li => {
+            li.classList.toggle('active', li.dataset.categoryId === category.id);
+        });
+
+        const customView = document.getElementById('app-custom-view');
+        const galleryView = document.getElementById('app-gallery-view');
+
+        if (category.id === 'custom') {
+            customView.style.display = 'block';
+            galleryView.style.display = 'none';
+        } else {
+            customView.style.display = 'none';
+            galleryView.style.display = 'block';
+            fetchAndDisplayApps(category);
+        }
+    }
+
+    async function fetchAndDisplayApps(category) {
+        const gallery = document.getElementById('app-gallery');
+        document.getElementById('app-gallery-title').textContent = category.name;
+        gallery.innerHTML = '<em>Loading...</em>';
+
+        try {
+            const response = await fetch(category.url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const apps = await response.json();
+
+            gallery.innerHTML = '';
+            apps.forEach(app => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.innerHTML = `<img src="${app.icon}" class="app-icon" style="margin-bottom: 5px;"><span>${app.name}</span>`;
+                item.title = app.url;
+                item.addEventListener('click', () => {
+                    addItem('app', { name: app.name, url: app.url, icon: app.icon });
+                    modals.app.style.display = 'none'; // Close modal on add
+                });
+                gallery.appendChild(item);
+            });
+        } catch (error) {
+            gallery.innerHTML = `<em style="color:#ff3b30;">Failed to load apps. Check repository setup and file paths.</em>`;
+            console.error("Error fetching app list:", error);
+        }
     }
     // --- Add these three new functions to the end of scripts.js ---
 
