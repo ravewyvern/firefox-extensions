@@ -59,11 +59,20 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('launcherConfig', JSON.stringify(config));
     }
 
+    function applyPreferences() {
+        const { transparentItems, showWidgetNames } = config.preferences;
+        document.body.classList.toggle('items-transparent', transparentItems);
+        document.body.classList.toggle('widget-names-visible', showWidgetNames);
+        // Re-render to apply changes like showing/hiding widget names
+        renderAllItems();
+    }
+
     // --- Initialization --- //
     function init() {
         loadConfig();
         applyWallpaper();
         applyGridSettings();
+        applyPreferences(); // This call is correct
         renderAllItems();
         setupEventListeners();
         populateWidgetGallery();
@@ -171,6 +180,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 content.innerHTML = html;
 
                 itemEl.appendChild(content);
+
+                // --- Fix: Add the name INSIDE the grid item ---
+                if (config.preferences.showWidgetNames) {
+                    const nameEl = document.createElement('div');
+                    nameEl.className = 'widget-name-display';
+                    nameEl.textContent = widgetDef.name;
+                    itemEl.appendChild(nameEl); // Append, don't insert after
+                }
 
                 // Execute scripts within the widget AFTER it's in the DOM
                 setTimeout(() => {
@@ -299,11 +316,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function openSettingsModal() {
+        // Grid
         document.getElementById('grid-cols').value = config.grid.cols;
         document.getElementById('grid-rows').value = config.grid.rows;
+        // Preferences
+        if(config.preferences){
+            document.getElementById('pref-hour-format').value = config.preferences.hourFormat;
+            document.getElementById('pref-temp-unit').value = config.preferences.tempUnit;
+            document.getElementById('pref-transparent-items').checked = config.preferences.transparentItems;
+            document.getElementById('pref-show-widget-names').checked = config.preferences.showWidgetNames;
+        }
         openModal(modals.settings);
     }
-
     function openWallpaperModal() {
         const { type, value } = config.wallpaper;
         document.getElementById('wallpaper-type').value = type;
@@ -430,11 +454,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Form Handlers --- //
     function handleSettingsSave(e) {
         e.preventDefault();
+        // Grid
         config.grid.cols = document.getElementById('grid-cols').value;
         config.grid.rows = document.getElementById('grid-rows').value;
+        // Preferences
+        config.preferences.hourFormat = document.getElementById('pref-hour-format').value;
+        config.preferences.tempUnit = document.getElementById('pref-temp-unit').value;
+        config.preferences.transparentItems = document.getElementById('pref-transparent-items').checked;
+        config.preferences.showWidgetNames = document.getElementById('pref-show-widget-names').checked;
+
         saveConfig();
         applyGridSettings();
-        renderAllItems();
+        applyPreferences(); // Apply new appearance settings
         modals.settings.style.display = 'none';
     }
 
