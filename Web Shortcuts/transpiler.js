@@ -29,12 +29,18 @@ function generate(node) {
         }
 
         case 'CallExpression': {
-            const callee = generate(node.callee);
+            const calleeName = node.callee.name;
             const args = node.arguments.map(arg => generate(arg)).join(', ');
-            if (callee === 'print' || callee === 'println') {
-                return `_${callee}(${args})`;
+
+            if (window._extensionExists(calleeName)) {
+                return `_callExtension("${calleeName}", [${args}])`;
             }
-            return `${callee}(${args})`;
+
+            if (calleeName === 'print' || calleeName === 'println') {
+                return `_${calleeName}(${args})`;
+            }
+
+            return `${calleeName}(${args})`;
         }
 
         case 'ReturnStatement': {

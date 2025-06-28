@@ -12,140 +12,16 @@
     <link rel="stylesheet" href="lib/codemirror/http_cdnjs.cloudflare.com_ajax_libs_codemirror_5.65.16_theme_material-darker.css">
 
     <link rel="stylesheet" href="lib/codemirror/show-hint.css">
-
-    <style>
-        :root { --header-height: 50px; --statusbar-height: 25px; }
-        body {
-            font-family: "Fira Code", monospace;
-            margin: 0;
-            background-color: #1a1a1a;
-            color: #f0f0f0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-        .top-bar {
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-            height: var(--header-height);
-            background-color: #2c2c2c;
-            border-bottom: 1px solid #333;
-            flex-shrink: 0;
-            margin: 15px 15px 0 15px;
-            border-radius: 20px;
-        }
-        .logo { width: 30px; margin-right: 10px; }
-        .menu-bar > button {
-            background: none;
-            border: none;
-            color: #ccc;
-            padding: 8px 12px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        .menu-bar > button:hover { background-color: #3e3e3e; }
-        .dropdown { position: relative; display: inline-block;}
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #2c2c2c;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 10;
-            border: 1px solid #444;
-            border-radius: 4px;
-            padding: 5px 0;
-        }
-        .dropdown-content a {
-            color: #ccc;
-            padding: 8px 16px;
-            text-decoration: none;
-            display: block;
-        }
-        .dropdown-content a:hover { background-color: #5d2d84; }
-        .show { display: block; }
-        .controls { margin-left: auto; }
-        .controls button {
-            background-color: #773ea5;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            margin-left: 10px;
-            font-size: 1rem;
-            display: inline-flex;
-            align-items: center;
-        }
-        .controls button:hover { background-color: #5d2d84; }
-        .controls .material-icons { font-size: 1.2rem; margin-right: 0.25rem; }
-        .main-content {
-            display: flex;
-            flex: 1; /* Fill remaining vertical space */
-            height: calc(100vh - var(--header-height) - var(--statusbar-height));
-        }
-        .editor-container {
-            display: flex;
-            flex-direction: column;
-            width: 50%;
-            margin: 10px;
-        }
-        .output-container {
-            display: flex;
-            flex-direction: column;
-            flex: 1; /* Takes up remaining space */
-            padding: 10px;
-        }
-        #code-editor { position: relative; height: 100%; }
-        .CodeMirror {
-            font-family: 'Fira Code', monospace;
-            height: 100%;
-            font-size: 16px;
-        }
-        #output {
-            background-color: #252526;
-            border-radius: 4px;
-            border: 1px solid #333;
-            padding: 0.75rem;
-            white-space: pre-wrap;
-            font-family: 'Fira Code', monospace;
-            flex: 1;
-            overflow-y: auto;
-        }
-        .resizer {
-            background-color: #333;
-            width: 5px;
-            cursor: col-resize;
-            flex-shrink: 0;
-            border-radius: 5px;
-            margin-top: 10px;
-            margin-bottom: 10px;
-        }
-        .status-bar {
-            height: var(--statusbar-height);
-            background-color: #2c2c2c;
-            border-top: 1px solid #333;
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-            font-size: 0.85rem;
-            flex-shrink: 0;
-            margin: 0 10px 10px 10px;
-            border-radius: 20px;
-        }
-        #file-btn, #edit-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1rem;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="top-bar">
     <img src="icons/novascript-logo.png" alt="Novascript Logo" class="logo">
+    <div class="project-menu" id="project-menu">
+        <span class="material-icons">code</span>
+        <span id="project-name-text">Untitled</span>
+        <input type="text" id="project-name-input" />
+    </div>
     <div class="menu-bar">
         <div class="dropdown">
             <button id="file-btn"><span style="text-decoration: underline">F</span>ile</button>
@@ -166,6 +42,14 @@
                 <a href="#">Paste</a>
             </div>
         </div>
+        <button id="extensions-btn"><span style="text-decoration: underline">E</span>xtensions</button>
+        <div class="dropdown">
+            <button id="help-btn"><span style="text-decoration: underline">H</span>elp</button>
+            <div id="help-dropdown" class="dropdown-content">
+                <a href="https://ravewyvern.me/NovaScript/Docs/novascript-docs.html">Docs</a>
+                <a href="#" id="about-btn">About</a>
+            </div>
+        </div>
     </div>
     <div class="controls">
         <button id="run-btn"><span class="material-icons">play_arrow</span> Run</button>
@@ -183,6 +67,43 @@
 </div>
 <div class="status-bar" id="status-bar">
     <span>Ln 1, Col 1</span>
+</div>
+
+<div id="extension-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-sidebar" id="extension-sidebar">
+        </div>
+        <div class="modal-main-content">
+            <div id="extension-details-view">
+                <h2 id="detail-name"></h2>
+                <p><em>by <span id="detail-author"></span>, version <span id="detail-version"></span></em></p>
+                <p id="detail-desc"></p>
+                <h3>Functions</h3>
+                <ul id="function-list"></ul>
+                <div id="remove-btn-container"></div>
+            </div>
+            <div id="add-extension-view">
+                <h3>Add New Extension</h3>
+                <p>Paste the JSON content of an extension pack below.</p>
+                <textarea id="extension-json-input" placeholder='{ "info": { ... }, "functions": [ ... ] }'></textarea>
+                <button id="add-extension-btn" style="margin-top: 10px;"><span class="material-icons">add</span> Add Extension</button>
+                <p id="extension-error" style="color: #ff5555;"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="about-modal" class="modal-overlay">
+    <div class="modal-content">
+        <span class="close-btn" id="close-about-btn"></span>
+        <img src="icons/novascript-logo.png" alt="NovaScript Logo">
+        <h2>NovaScript</h2>
+        <h3>NovaScript Editor</h3>
+        <p>Version 1.0.0</p>
+        <h3>NovaScript Lang</h3>
+        <p>Version 1.0.0</p>
+        <p>A lightweight, extensible scripting environment for the browser.</p>
+    </div>
 </div>
 
 <script src="lib/codemirror/http_cdnjs.cloudflare.com_ajax_libs_codemirror_5.65.16_codemirror.js"></script>
