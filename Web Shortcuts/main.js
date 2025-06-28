@@ -1,6 +1,14 @@
 // main.js
 
 let _printBuffer = '';
+
+function _handleRuntimeError(error, lineNumber) {
+    const output = document.getElementById('output');
+    output.style.color = '#ff5555'; // Red for errors
+    // Format a user-friendly error message!
+    output.textContent = `Runtime Error on line ${lineNumber}:\n${error.name}: ${error.message}`;
+}
+
 function _print(...args) {
     document.getElementById('output').textContent += args.join(' ');
 }
@@ -56,11 +64,8 @@ for i in range(5):
 
 
     runBtn.addEventListener('click', () => {
-        // ---- FIX FOR BUG #1 ----
-        // Reset output state before every run
         output.textContent = '';
-        output.style.color = ''; // Reset the color to default
-        // ------------------------
+        output.style.color = '';
 
         const userCode = editor.getValue();
 
@@ -75,8 +80,10 @@ for i in range(5):
             eval(jsCode);
 
         } catch (e) {
-            output.style.color = '#ff5555';
-            output.textContent = e.stack;
+            if (output.textContent === '') {
+                output.style.color = '#ff5555';
+                output.textContent = e.stack;
+            }
             console.error(e);
         }
     });

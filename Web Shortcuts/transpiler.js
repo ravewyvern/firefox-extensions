@@ -2,9 +2,44 @@
 
 function generate(node) {
     if (!node) return '';
+
+    const wrap = (code, line) => {
+        // Only wrap if we have a valid line number
+        if (line !== undefined) {
+            // We pass the JS error 'e' and the original line number to our handler.
+            // We also re-throw the error to stop script execution.
+            return `try { ${code} } catch (e) { _handleRuntimeError(e, ${line + 1}); throw e; }`;
+        }
+        return code;
+    };
+
     switch (node.type) {
         case 'Program':
             return node.body.map(generate).filter(Boolean).join('\n');
+
+        case 'ExpressionStatement':
+            return `${generate(node.expression)};`;
+
+        case 'FunctionDeclaration': {
+            const name = node.name;
+            const params = node.params.map(p => generate(p)).join(', ');
+            const body = generate(node.body);
+            // We use 'function' instead of 'let' to allow hoisting, which is how Python/JS behave.
+            return `function ${name}(${params}) {\n${body}\n}`;
+        }
+
+        case 'CallExpression': {
+            const callee = generate(node.callee);
+            const args = node.arguments.map(arg => generate(arg)).join(', ');
+            if (callee === 'print' || callee === 'println') {
+                return `_${callee}(${args})`;
+            }
+            return `${callee}(${args})`;
+        }
+
+        case 'ReturnStatement': {
+            return `return ${generate(node.argument)};`;
+        }
 
         case 'PrintLineStatement':
             return `_println(${generate(node.expression)});`;
@@ -43,14 +78,7 @@ function generate(node) {
             return `(${left} ${node.operator} ${right})`;
 
         case 'TemplateLiteral':
-            const templateParts = node.parts.map(part => {
-                if (part.type === 'StringLiteral') {
-                    return part.value.replace(/`/g, '\\`'); // Escape backticks
-                } else {
-                    return `\${${part.name}}`;
-                }
-            }).join('');
-            return `\`${templateParts}\``;
+            return `\`${node.value}\``; // Just wrap the value in backticks.
 
         case 'Identifier':
             return node.name;
