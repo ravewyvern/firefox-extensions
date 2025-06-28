@@ -10,7 +10,7 @@ function parse(code) {
         while (i < lines.length) {
             // ---- FIX FOR BUG #2 ----
             // Strip inline comments from the line first
-            const rawLine = lines[i].split('#')[0];
+            const rawLine = lines[i].split('//')[0];
             // ------------------------
 
             const indentMatch = rawLine.match(/^\s*/);
