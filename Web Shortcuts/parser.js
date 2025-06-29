@@ -102,15 +102,27 @@ function parseLine(line, scope, lineNumber) {
     }
 
     if (line.includes('=')) {
-        match = line.match(/^(\w+)\s*=\s*(.*)$/);
-        if (match) {
-            const varName = match[1];
-            const value = parseExpression(match[2].trim());
-            if (!scope.has(varName)) {
-                scope.add(varName);
-                return { type: 'VariableDeclaration', name: varName, value: value };
-            } else {
-                return { type: 'AssignmentExpression', name: varName, value: value };
+        // Check for comparison operators first to avoid misinterpreting them as assignment
+        if (line.includes('==') || line.includes('!=')) {
+            // This is not an assignment, let other rules handle it.
+        } else {
+            // Use a more specific regex that finds the variable/member on the left,
+            // and the rest of the expression on the right.
+            const match = line.match(/^(.+?)\s*=\s*(.*)$/);
+            if (match) {
+                const left = parseExpression(match[1].trim());
+                const right = parseExpression(match[2].trim());
+
+                if (left.type === 'Identifier') {
+                    const varName = left.name;
+                    // This is a new declaration only if we haven't seen the variable before.
+                    if (!scope.has(varName)) {
+                        scope.add(varName);
+                        return { type: 'VariableDeclaration', name: varName, value: right, line: lineNumber };
+                    }
+                }
+                // For existing variables or array assignments (my_array[0] = ...)
+                return { type: 'AssignmentExpression', left: left, right: right, line: lineNumber };
             }
         }
     }
@@ -152,16 +164,25 @@ function parseLine(line, scope, lineNumber) {
     }
     // Check for assignment
     if (line.includes('=')) {
-        match = line.match(/^(\w+)\s*=\s*(.*)$/);
-        // Ensure it's not a comparison operator like ==
-        if (match && !line.trim().startsWith('==')) {
-            const varName = match[1];
-            const value = parseExpression(match[2].trim());
-            if (!scope.has(varName)) {
-                scope.add(varName);
-                return { type: 'VariableDeclaration', name: varName, value: value };
-            } else {
-                return { type: 'AssignmentExpression', name: varName, value: value };
+        // Check for comparison first to avoid misinterpreting it as assignment
+        if (line.includes('==') || line.includes('!=')) {
+            // It's likely a condition, let parseExpression handle it.
+        } else {
+            match = line.match(/(.*)=\s*(.*)/);
+            if (match) {
+                const left = parseExpression(match[1].trim());
+                const right = parseExpression(match[2].trim());
+
+                // If the left side is a simple variable name (Identifier)
+                if (left.type === 'Identifier') {
+                    const varName = left.name;
+                    if (!scope.has(varName)) {
+                        scope.add(varName);
+                        return { type: 'VariableDeclaration', name: varName, value: right, line: lineNumber };
+                    }
+                }
+                // If the left side is an array access (MemberExpression) or a simple variable
+                return { type: 'AssignmentExpression', left: left, right: right, line: lineNumber };
             }
         }
     }
@@ -180,6 +201,22 @@ function parseLine(line, scope, lineNumber) {
 
 function parseExpression(expr) {
     expr = expr.trim();
+
+    if (expr.startsWith('[') && expr.endsWith(']')) {
+        const content = expr.slice(1, -1);
+        if (content.trim() === '') return { type: 'ArrayExpression', elements: [] }; // Handle empty array
+        const elements = content.split(',').map(e => parseExpression(e.trim()));
+        return { type: 'ArrayExpression', elements: elements };
+    }
+
+    const memberMatch = expr.match(/(\w+)\[(.*)\]$/);
+    if (memberMatch) {
+        return {
+            type: 'MemberExpression',
+            object: { type: 'Identifier', name: memberMatch[1] },
+            property: parseExpression(memberMatch[2]) // The index is an expression itself
+        };
+    }
 
     if (expr.startsWith('"') && expr.endsWith('"')) {
         const strValue = expr.slice(1, -1);

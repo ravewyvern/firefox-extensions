@@ -220,6 +220,9 @@ for i in range(5):
 
     // --- UI Enhancement Logic ---
 
+    document.getElementById('undo-btn').addEventListener('click', () => editor.undo());
+    document.getElementById('redo-btn').addEventListener('click', () => editor.redo());
+
     // 1. Status Bar
     function updateStatusBar() {
         const cursor = editor.getCursor();

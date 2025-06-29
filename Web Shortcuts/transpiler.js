@@ -57,7 +57,18 @@ function generate(node) {
 
         // NEW: Handles updating an existing variable
         case 'AssignmentExpression':
-            return `${node.name} = ${generate(node.value)};`;
+            const leftTarget = generate(node.left);
+            const rightValue = generate(node.right);
+            return wrap(`${leftTarget} = ${rightValue};`, node.line);
+
+        case 'ArrayExpression':
+            const elements = node.elements.map(el => generate(el)).join(', ');
+            return `[${elements}]`;
+
+        case 'MemberExpression':
+            const object = generate(node.object);
+            const property = generate(node.property);
+            return `${object}[${property}]`;
 
         case 'IfStatement':
             const condition = generate(node.condition);
