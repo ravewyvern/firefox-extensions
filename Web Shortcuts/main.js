@@ -615,7 +615,7 @@ for i in range(5):
         delete loadedPacks[packName];
 
         // 3. Find and remove the pack from our custom extensions array
-        const packIndex = customExtensions.findIndex(p => p.info.name === packName);
+        const packIndex = customExtensions.findIndex(p => p.info.id === packName);
         if (packIndex > -1) {
             customExtensions.splice(packIndex, 1);
         }
