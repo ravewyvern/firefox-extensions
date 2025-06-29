@@ -106,6 +106,22 @@
     </div>
 </div>
 
+<input type="file" id="file-opener-fallback" style="display: none;" accept=".ns,text/plain">
+
+<div id="confirm-modal" class="modal-overlay">
+    <div id="confirm-modal-content" class="modal-content" style="flex-direction: column; max-width: 450px; min-height: auto;">
+        <div class="modal-header" style="padding-bottom: 10px; border: none;">
+            <h2 id="confirm-title">Unsaved Changes</h2>
+        </div>
+        <p id="confirm-message" style="padding: 0 20px;">Do you want to save the changes you made to the project "<span id="confirm-project-name"></span>"?</p>
+        <div class="controls" style="padding: 15px 20px; margin-top: auto; justify-content: flex-end;">
+            <button id="confirm-cancel-btn" style="background-color: #6c757d;">Cancel</button>
+            <button id="confirm-dont-save-btn">Don't Save</button>
+            <button id="confirm-save-btn">Save</button>
+        </div>
+    </div>
+</div>
+
 <script src="lib/codemirror/http_cdnjs.cloudflare.com_ajax_libs_codemirror_5.65.16_codemirror.js"></script>
 <script src="lib/codemirror/http_cdnjs.cloudflare.com_ajax_libs_codemirror_5.65.16_mode_python_python.js"></script>
 <script src="lib/codemirror/http_cdnjs.cloudflare.com_ajax_libs_codemirror_5.65.16_addon_hint_show-hint.js"></script>
