@@ -63,16 +63,24 @@ async function loadDefaultExtensions() {
 }
 
 function loadExtensionPack(pack) {
-    if (!pack.info || !pack.info.name || !pack.functions) {
-        throw new Error("Invalid extension pack: Missing 'info.name' or 'functions'.");
+    // MODIFIED: Check for the new 'id' field
+    if (!pack.info || !pack.info.id || !pack.functions) {
+        throw new Error("Invalid extension pack: Missing 'info.id' or 'functions'.");
     }
-    loadedPacks[pack.info.name] = pack; // Store the full pack info
+    // MODIFIED: Use the ID to check for conflicts
+    if (loadedPacks[pack.info.id]) {
+        console.warn(`An extension pack with id "${pack.info.id}" is already loaded.`);
+        return false;
+    }
+    loadedPacks[pack.info.id] = pack;
     pack.functions.forEach(func => {
-        console.log(`Registering extension function: ${func.name}`);
-        extensionRegistry[func.name] = {
+        // MODIFIED: The key is now "namespace.function"
+        const namespacedName = `${pack.info.id}.${func.name}`;
+        console.log(`Registering extension function: ${namespacedName}`);
+        extensionRegistry[namespacedName] = {
             inputs: func.inputs || [],
             jsBody: func.javascript,
-            packName: pack.info.name
+            packId: pack.info.id // Changed from packName
         };
     });
     return true;
@@ -170,7 +178,6 @@ for i in range(5):
 `;
     editor.setValue(defaultCode.trim());
 
-    loadDefaultExtensions();
     loadInitialData();
     console.log("Default extensions loaded.");
 
@@ -222,6 +229,23 @@ for i in range(5):
     });
 
     // --- UI Enhancement Logic ---
+
+    // --- NEW: Settings Modal Logic ---
+    const settingsModal = document.getElementById('settings-modal');
+    document.getElementById('settings-btn').addEventListener('click', () => {
+        settingsModal.classList.add('show');
+    });
+    document.getElementById('close-settings-btn').addEventListener('click', () => {
+        settingsModal.classList.remove('show');
+    });
+
+    // Also, update the main window click listener to close this new modal too
+    window.addEventListener('click', (event) => {
+        if (event.target === extensionModal) extensionModal.classList.remove('show');
+        if (event.target === aboutModal) aboutModal.classList.remove('show');
+        if (event.target === settingsModal) settingsModal.classList.remove('show'); // Add this line
+    });
+
 
 
     document.getElementById('undo-btn').addEventListener('click', () => editor.undo());
@@ -541,7 +565,7 @@ for i in range(5):
         pack.functions.forEach(func => {
             const li = document.createElement('li');
             const inputs = func.inputs.join(', ');
-            li.textContent = `${func.name}(${inputs}) -> ${func.returns || 'void'}`;
+            li.textContent = `${pack.info.id}.${func.name}(${inputs}) -> ${func.returns || 'void'}`;
             funcList.appendChild(li);
         });
 
