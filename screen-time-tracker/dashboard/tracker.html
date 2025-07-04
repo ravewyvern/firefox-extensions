@@ -10,22 +10,20 @@
 <body>
     <div class="main-container">
         <div class="panel" id="panel-daily">
-            <div class="panel-header">
-                <h2>Daily Breakdown</h2>
+            <div class="panel-header-tabs">
+                <button id="prev-week" class="week-nav-button">‹</button>
                 <div id="date-navigation" class="date-nav">
-                    </div>
+                </div>
+                <button id="next-week" class="week-nav-button">›</button>
             </div>
             <div class="chart-container">
                 <canvas id="dailyActivityChart"></canvas>
             </div>
             <div id="website-list">
-                </div>
+            </div>
         </div>
 
         <div class="panel" id="panel-weekly">
-            <div class="panel-header">
-                <h2>Weekly Overview</h2>
-            </div>
             <div class="summary-stats">
                 <div class="stat-box">
                     <span>Today</span>
@@ -45,8 +43,29 @@
             </div>
         </div>
     </div>
+    <div class="panel" id="panel-history">
+        <div id="calendar-container">
+            <div id="calendar-header">
+                <button id="prev-month" class="month-nav-button">‹</button>
+                <h3 id="calendar-month-year">July 2025</h3>
+                <button id="next-month" class="month-nav-button">›</button>
+            </div>
+            <div id="calendar-grid">
+            </div>
+        </div>
+        <div id="data-management-section">
+            <h4>Data Management</h4>
+            <p>Permanently delete tracking data.</p>
+            <div class="button-group">
+                <button class="delete-button" data-period="1_year">Clear data over 1 year ago</button>
+                <button class="delete-button" data-period="1_month">Clear data over 1 month ago</button>
+                <button class="delete-button" data-period="1_week">Clear data over 1 week ago</button>
+                <button class="delete-button" data-period="all">Clear ALL data</button>
+            </div>
+        </div>
+    </div>
 
-<div id="color-modal" class="modal-hidden">
+    <div id="color-modal" class="modal-hidden">
     <div class="modal-content">
         <span class="close-button">&times;</span>
         <div id="modal-website-info">

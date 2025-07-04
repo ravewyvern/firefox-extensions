@@ -41,34 +41,33 @@ function getWeekDays(date) {
 
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Get all necessary data from storage
     const storageData = await browser.storage.local.get(['timeData', 'colorPreferences']);
     const timeData = storageData.timeData || {};
     const colorPreferences = storageData.colorPreferences || {};
     let selectedDate = new Date();
+    let calendarDate = new Date(); // NEW: State for the calendar's current month view
 
     // --- MAIN RENDER FUNCTION ---
     function renderDashboard() {
         renderDateNavigation();
         renderDailyPanel();
         renderWeeklyPanel();
+        renderCalendarPanel(); // NEW
     }
 
     // --- DATE NAVIGATION ---
     function renderDateNavigation() {
         const navContainer = document.getElementById('date-navigation');
         navContainer.innerHTML = '';
-        const weekDays = getWeekDays(new Date());
-        
+        const weekDays = getWeekDays(selectedDate); // UPDATED: Use selectedDate
+
         weekDays.forEach(day => {
             const button = document.createElement('button');
             button.textContent = day.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' });
-            button.dataset.date = day.toISOString().split('T')[0];
-            
-            if (day.toDateString() === selectedDate.toDateString()) {
+            button.dataset.date = getLocalDateKey(day);
+            if (getLocalDateKey(day) === getLocalDateKey(selectedDate)) {
                 button.className = 'active';
             }
-            
             button.addEventListener('click', () => {
                 selectedDate = day;
                 renderDashboard();
@@ -124,8 +123,6 @@ const blockDurationInput = document.getElementById('block-duration-input');
         });
         
     }
-    // In tracker.js, inside the `DOMContentLoaded` listener, find the MODAL LOGIC section
-// ... (keep all the existing modal code) ...
 
 // Add these variables at the top of the modal logic section
 const saveLimitBtn = document.getElementById('save-limit-button');
@@ -133,9 +130,6 @@ const blockUntilBtn = document.getElementById('block-until-button');
 const timeLimitInput = document.getElementById('time-limit-input');
 const blockDurationInput = document.getElementById('block-duration-input');
 
-// --- (keep the existing openColorModal, closeBtn, and window.onclick functions) ---
-
-// Add these new click handlers
 saveLimitBtn.onclick = async () => {
     const limitInMinutes = parseInt(timeLimitInput.value);
     if (!currentDomain || isNaN(limitInMinutes) || limitInMinutes <= 0) {
@@ -190,7 +184,6 @@ Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
         const backgroundColors = sortedData.map(([domain]) => getWebsiteColor(domain));
         
         if (dailyChart) dailyChart.destroy(); // Clear old chart
-// ... inside renderDailyChart ...
         dailyChart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -217,33 +210,27 @@ Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
 
 
     function renderWeeklyPanel() {
-        const weekDays = getWeekDays(new Date());
+        const weekDays = getWeekDays(selectedDate);
         let totalWeekSeconds = 0;
         let daysWithData = 0;
-        
         const weeklyTotals = weekDays.map(day => {
-            const dateKey = getLocalDateKey(day); // FIXED: Use local date key
-            const dayData = timeData[dateKey] || {};
+            const dayData = timeData[getLocalDateKey(day)] || {};
             const dayTotal = Object.values(dayData).reduce((sum, time) => sum + time, 0);
             if (dayTotal > 0) daysWithData++;
             totalWeekSeconds += dayTotal;
             return dayTotal;
         });
-        
-        // FIXED: Use local date key
         const todayKey = getLocalDateKey(new Date());
         const todayTotal = Object.values(timeData[todayKey] || {}).reduce((sum, time) => sum + time, 0);
-
         document.getElementById('total-today').textContent = formatTime(todayTotal);
         document.getElementById('total-this-week').textContent = formatTime(totalWeekSeconds);
         document.getElementById('average-this-week').textContent = daysWithData > 0 ? formatTime(Math.round(totalWeekSeconds / daysWithData)) : '0m';
-        
         renderWeeklyChart(weekDays, weeklyTotals);
     }
     
     function renderWeeklyChart(weekDays, weeklyTotals) {
         const ctx = document.getElementById('weeklyActivityChart').getContext('2d');
-        const labels = weekDays.map(day => day.toLocaleDateString(undefined, { weekday: 'short' }));
+        const labels = weekDays.map(day => day.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' }));
         const data = weeklyTotals.map(seconds => (seconds / 3600).toFixed(2)); // in hours
         
         if (weeklyChart) weeklyChart.destroy();
@@ -254,7 +241,7 @@ Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
                 datasets: [{
                     label: 'Total Hours',
                     data: data,
-                    backgroundColor: '#1877f2',
+                    backgroundColor: '#6c33dd',
                     borderRadius: 4
                 }]
             },
@@ -270,6 +257,92 @@ Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
             }
         });
     }
+
+    // --- NEW: RENDER PANEL 3: CALENDAR ---
+    function renderCalendarPanel() {
+        const calendarGrid = document.getElementById('calendar-grid');
+        const monthYearEl = document.getElementById('calendar-month-year');
+        calendarGrid.innerHTML = '';
+
+        // Use calendarDate instead of creating a new Date
+        const todayKey = getLocalDateKey(new Date()); // For highlighting today
+
+        // Display the month/year from calendarDate
+        monthYearEl.textContent = calendarDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+
+        // Use calendarDate to determine the days in the month
+        const firstDayOfMonth = new Date(calendarDate.getFullYear(), calendarDate.getMonth(), 1);
+        const lastDayOfMonth = new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 0);
+        const startingDay = firstDayOfMonth.getDay();
+
+        // Add day headers (Sun, Mon, etc.)
+        ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].forEach(day => {
+            calendarGrid.innerHTML += `<div class="calendar-day-header">${day}</div>`;
+        });
+
+        // Add blank days for the start of the month
+        for (let i = 0; i < startingDay; i++) {
+            calendarGrid.innerHTML += `<div class="calendar-day other-month"></div>`;
+        }
+
+        // Add days of the month
+        for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
+            const date = new Date(calendarDate.getFullYear(), calendarDate.getMonth(), i);
+            const dateKey = getLocalDateKey(date);
+            const dayData = timeData[dateKey] || {};
+            const totalSeconds = Object.values(dayData).reduce((sum, time) => sum + time, 0);
+
+            const isToday = dateKey === todayKey ? 'current-day' : '';
+            calendarGrid.innerHTML += `
+            <div class="calendar-day ${isToday}" data-date="${dateKey}">
+                <span class="day-number">${i}</span>
+                <span class="day-total">${totalSeconds > 0 ? formatTime(totalSeconds, 'hm') : ''}</span>
+            </div>
+        `;
+        }
+    }
+
+    // --- EVENT LISTENERS (Navigation & Deletion) ---
+    document.getElementById('prev-week').addEventListener('click', () => {
+        selectedDate.setDate(selectedDate.getDate() - 7);
+        renderDashboard();
+    });
+
+    document.getElementById('next-week').addEventListener('click', () => {
+        selectedDate.setDate(selectedDate.getDate() + 7);
+        renderDashboard();
+    });
+
+    document.getElementById('prev-month').addEventListener('click', () => {
+        calendarDate.setMonth(calendarDate.getMonth() - 1);
+        renderCalendarPanel();
+    });
+
+    document.getElementById('next-month').addEventListener('click', () => {
+        calendarDate.setMonth(calendarDate.getMonth() + 1);
+        renderCalendarPanel();
+    });
+
+    // NEW: Feature #3: Click listener for calendar days
+    document.getElementById('calendar-grid').addEventListener('click', (e) => {
+        const dayElement = e.target.closest('.calendar-day');
+        if (dayElement && dayElement.dataset.date) {
+            // The date string includes a time zone offset, so we add 'T00:00:00' to parse it as local time
+            selectedDate = new Date(dayElement.dataset.date + 'T00:00:00');
+            renderDashboard();
+        }
+    });
+
+    document.querySelectorAll('.delete-button').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const period = e.target.dataset.period;
+            const confirmation = confirm(`Are you sure you want to permanently delete this data? This cannot be undone.`);
+            if (confirmation) {
+                await browser.runtime.sendMessage({ type: "CLEAR_DATA", period: period });
+                window.location.reload();
+            }
+        });
+    });
 
     // --- COLOR ASSIGNMENT ---
     function getWebsiteColor(domain) {

@@ -124,7 +124,38 @@ browser.runtime.onMessage.addListener(async (message) => {
         await browser.storage.local.set({ siteControls: newControls });
         await updateBlockingRules();
     }
+    else if (message.type === "CLEAR_DATA") {
+        const cutoffDate = new Date();
+        const { timeData } = await browser.storage.local.get('timeData');
+        if (!timeData) return;
+
+        switch (message.period) {
+            case "all":
+                await browser.storage.local.remove('timeData');
+                break;
+            case "1_week":
+                cutoffDate.setDate(cutoffDate.getDate() - 7);
+                break;
+            case "1_month":
+                cutoffDate.setMonth(cutoffDate.getMonth() - 1);
+                break;
+            case "1_year":
+                cutoffDate.setFullYear(cutoffDate.getFullYear() - 1);
+                break;
+        }
+
+        if (message.period !== "all") {
+            for (const dateKey in timeData) {
+                if (new Date(dateKey) < cutoffDate) {
+                    delete timeData[dateKey];
+                }
+            }
+            await browser.storage.local.set({ timeData });
+        }
+        console.log(`Data cleared for period: ${message.period}`);
+    }
 });
+
 
 browser.tabs.onActivated.addListener(async (activeInfo) => {
     // REMOVED: Focus check
@@ -153,8 +184,6 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 // (Keep the alarms and weekly reset logic as is)
 browser.runtime.onStartup.addListener(() => {
     browser.alarms.create('periodic_save', { periodInMinutes: 1 });
-    browser.alarms.create('weekly_reset_check', { periodInMinutes: 60 });
-    weeklyReset();
     updateBlockingRules();
 });
 browser.alarms.create('periodic_save', { periodInMinutes: 1 }); browser.alarms.create('weekly_reset_check', { periodInMinutes: 60 });
@@ -169,20 +198,6 @@ browser.alarms.onAlarm.addListener(async (alarm) => {
         updateBlockingRules();
     }
 });
-async function weeklyReset() {
-    const SUNDAY = 0;
-    const today = new Date();
-    // FIXED: Use local date for check
-    const todayKey = getLocalDateKey(today); 
-    const { lastReset } = await browser.storage.local.get('lastReset');
-    
-    if (today.getDay() === SUNDAY && lastReset !== todayKey) {
-        console.log("Performing weekly data reset...");
-        await browser.storage.local.remove('timeData');
-        await browser.storage.local.set({ lastReset: todayKey });
-        await updateBlockingRules();
-    }
-}
 
 // Initial checks on load
 // Initial check on load
