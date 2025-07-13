@@ -344,7 +344,118 @@ h2 {
 .delete-button:hover {
     background-color: #6e1a1a;
 }
+#settings-button {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: var(--panel-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 18px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
+#settings-button:hover {
+    background: var(--hover-color);
+}
+
+.settings-section {
+    border-top: 1px solid var(--border-color);
+    margin-top: 20px;
+    padding-top: 20px;
+    text-align: left;
+}
+
+.settings-section h3 {
+    margin: 0 0 5px 0;
+}
+
+.settings-section p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 0 0 15px 0;
+}
+
+#import-textarea {
+    width: 100%;
+    min-height: 80px;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px;
+    box-sizing: border-box; /* Important for padding */
+    margin-bottom: 10px;
+    resize: vertical;
+}
+
+.file-label {
+    padding: 8px 12px;
+    background-color: #333;
+    border: 1px solid #555;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.file-label:hover {
+    background-color: #444;
+}
+
+#file-name-display {
+    margin-left: 10px;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+.modal-highlight {
+    color: var(--accent-color);
+    font-weight: bold;
+    text-align: center;
+}
+
+#custom-css-textarea {
+    width: 100%;
+    min-height: 120px;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    resize: vertical;
+    font-family: monospace;
+}
+
+#save-css-button {
+    width: 100%;
+    margin-top: 5px;
+    padding: 10px;
+    font-size: 14px;
+    background-color: #006400; /* Dark green */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+#import-data-button {
+    width: 100%;
+    margin-top: 15px;
+    padding: 12px;
+    font-size: 16px;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
 #calendar-header {
     display: flex;
     justify-content: space-between;

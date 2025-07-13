@@ -9,6 +9,7 @@
 </head>
 <body>
     <div class="main-container">
+        <button id="settings-button" title="Settings">⚙️</button>
         <div class="panel" id="panel-daily">
             <div class="panel-header-tabs">
                 <button id="prev-week" class="week-nav-button">‹</button>
@@ -73,6 +74,7 @@
             <h3 id="modal-website-name">domain.com</h3>
         </div>
         <p>Total time this week: <strong id="modal-weekly-total">--</strong></p>
+        <p>Total time (all time): <strong id="modal-all-time-total">--</strong></p>
 
         <div class="modal-section">
             <div class="control-group">
@@ -93,8 +95,43 @@
         </div>
     </div>
 </div>
+    <div id="settings-modal" class="modal-hidden">
+        <div class="modal-content">
+            <span id="settings-close-button" class="close-button">×</span>
+            <h2>Settings</h2>
 
-<script src="../lib/chart.umd.js"></script> <script src="../utils/colors.js"></script>
+            <div class="settings-section">
+                <h3>Export Data</h3>
+                <p>Save a copy of all your tracking data.</p>
+                <div class="button-group">
+                    <button id="export-copy-button">Copy to Clipboard</button>
+                    <button id="export-download-button">Download as File</button>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Import Data</h3>
+                <p>Merge data from a file or text. This will add to, not replace, existing data.</p>
+                <textarea id="import-textarea" placeholder="Paste your exported data here..."></textarea>
+                <div class="button-group">
+                    <input type="file" id="import-file-input" accept=".json,text/plain" style="display: none;">
+                    <label for="import-file-input" class="file-label">Choose a File...</label>
+                    <span id="file-name-display">No file selected</span>
+                </div>
+                <button id="import-data-button">Import Data</button>
+            </div>
+
+            <div class="settings-section">
+                <h3>Custom Styles</h3>
+                <p>Apply custom CSS to the dashboard. Use with caution.</p>
+                <textarea id="custom-css-textarea" placeholder=".panel { border-radius: 0; }"></textarea>
+                <button id="save-css-button">Apply & Save CSS</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="../lib/chart.umd.js"></script> <script src="../utils/colors.js"></script>
     <script src="tracker.js"></script>
 </body>
 </html>

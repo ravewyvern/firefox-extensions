@@ -41,6 +41,13 @@ function getWeekDays(date) {
 
 
 document.addEventListener('DOMContentLoaded', async () => {
+    const { customCSS } = await browser.storage.local.get('customCSS');
+    if (customCSS) {
+        const styleSheet = document.createElement("style");
+        styleSheet.id = "custom-styles-sheet";
+        styleSheet.innerText = customCSS;
+        document.head.appendChild(styleSheet);
+    }
     const storageData = await browser.storage.local.get(['timeData', 'colorPreferences']);
     const timeData = storageData.timeData || {};
     const colorPreferences = storageData.colorPreferences || {};
@@ -362,12 +369,11 @@ Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
 
     function openColorModal(domain) {
         currentDomain = domain;
-        
-        // Calculate weekly total for this domain
-        const weekDays = getWeekDays(new Date());
+
+        const weekDays = getWeekDays(selectedDate);
         let domainWeeklyTotal = 0;
         weekDays.forEach(day => {
-            const dateKey = day.toISOString().split('T')[0];
+            const dateKey = getLocalDateKey(day);
             if(timeData[dateKey] && timeData[dateKey][domain]) {
                 domainWeeklyTotal += timeData[dateKey][domain];
             }
@@ -376,8 +382,8 @@ Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
         document.getElementById('modal-website-name').textContent = domain;
         document.getElementById('modal-favicon').src = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
         document.getElementById('modal-weekly-total').textContent = formatTime(domainWeeklyTotal);
+        document.getElementById('modal-all-time-total').textContent = formatTime(domainAllTimeTotal);
         document.getElementById('colorPicker').value = getWebsiteColor(domain);
-
         modal.className = 'modal-visible';
     }
 
@@ -395,6 +401,127 @@ Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
         
         modal.className = 'modal-hidden';
         renderDashboard(); // Re-render to show the new color immediately
+    };
+
+    const settingsModal = document.getElementById('settings-modal');
+    const settingsBtn = document.getElementById('settings-button');
+    const settingsCloseBtn = document.getElementById('settings-close-button');
+
+    const exportCopyBtn = document.getElementById('export-copy-button');
+    const exportDownloadBtn = document.getElementById('export-download-button');
+    const importDataBtn = document.getElementById('import-data-button');
+    const importTextarea = document.getElementById('import-textarea');
+    const importFileInput = document.getElementById('import-file-input');
+    const fileNameDisplay = document.getElementById('file-name-display');
+
+    settingsBtn.onclick = () => { settingsModal.className = 'modal-visible'; };
+    settingsCloseBtn.onclick = () => { settingsModal.className = 'modal-hidden'; };
+    window.addEventListener('click', (event) => {
+        if (event.target == settingsModal) {
+            settingsModal.className = 'modal-hidden';
+        }
+    });
+
+    exportCopyBtn.onclick = async () => {
+        const { timeData } = await browser.storage.local.get('timeData');
+        if (!timeData) {
+            alert("No data to export.");
+            return;
+        }
+        try {
+            const dataString = JSON.stringify(timeData, null, 2); // Pretty print JSON
+            await navigator.clipboard.writeText(dataString);
+            alert("All tracking data has been copied to your clipboard.");
+        } catch (err) {
+            alert("Failed to copy data. See console for details.");
+            console.error("Clipboard write failed: ", err);
+        }
+    };
+
+    exportDownloadBtn.onclick = async () => {
+        const { timeData } = await browser.storage.local.get('timeData');
+        if (!timeData) {
+            alert("No data to export.");
+            return;
+        }
+        const dataString = JSON.stringify(timeData, null, 2);
+        const blob = new Blob([dataString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `webtimetracker_export_${getLocalDateKey(new Date())}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    // Import Logic
+    importFileInput.onchange = () => {
+        if (importFileInput.files.length > 0) {
+            fileNameDisplay.textContent = importFileInput.files[0].name;
+            importTextarea.value = ''; // Clear textarea if a file is chosen
+        }
+    };
+
+    importDataBtn.onclick = async () => {
+        const file = importFileInput.files[0];
+        let rawData = importTextarea.value;
+
+        if (file) {
+            rawData = await file.text();
+        }
+
+        if (!rawData) {
+            alert("No data to import. Paste data or choose a file.");
+            return;
+        }
+
+        if (!confirm("This will merge the imported data with your existing data. Are you sure you want to continue?")) {
+            return;
+        }
+
+        try {
+            const importedData = JSON.parse(rawData);
+            const { timeData: existingData = {} } = await browser.storage.local.get('timeData');
+
+            // Deep merge the data
+            for (const dateKey in importedData) {
+                if (!existingData[dateKey]) {
+                    existingData[dateKey] = {};
+                }
+                for (const domain in importedData[dateKey]) {
+                    existingData[dateKey][domain] = (existingData[dateKey][domain] || 0) + importedData[dateKey][domain];
+                }
+            }
+
+            await browser.storage.local.set({ timeData: existingData });
+            alert("Data successfully imported and merged! The page will now reload.");
+            window.location.reload();
+
+        } catch (e) {
+            alert("Import failed! The data was not valid JSON. Please check the format.");
+            console.error("Import error: ", e);
+        }
+    };
+
+    const saveCssBtn = document.getElementById('save-css-button');
+    const customCssTextarea = document.getElementById('custom-css-textarea');
+
+    customCssTextarea.value = customCSS || '';
+
+    saveCssBtn.onclick = async () => {
+        const cssToSave = customCssTextarea.value;
+        await browser.storage.local.set({ customCSS: cssToSave });
+
+        let styleSheet = document.getElementById('custom-styles-sheet');
+        if (!styleSheet) {
+            styleSheet = document.createElement('style');
+            styleSheet.id = 'custom-styles-sheet';
+            document.head.appendChild(styleSheet);
+        }
+        styleSheet.innerText = cssToSave;
+        alert("Custom styles applied and saved!");
     };
 
     // --- INITIAL RENDER ---
