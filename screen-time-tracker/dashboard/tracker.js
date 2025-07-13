@@ -379,9 +379,18 @@ Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
             }
         });
 
+        let domainAllTimeTotal = 0;
+        for (const dateKey in timeData) {
+            if (timeData[dateKey][domain]) {
+                domainAllTimeTotal += timeData[dateKey][domain];
+            }
+        }
+
         document.getElementById('modal-website-name').textContent = domain;
         document.getElementById('modal-favicon').src = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+        // Update the existing weekly total element
         document.getElementById('modal-weekly-total').textContent = formatTime(domainWeeklyTotal);
+        // Update the new all-time total element
         document.getElementById('modal-all-time-total').textContent = formatTime(domainAllTimeTotal);
         document.getElementById('colorPicker').value = getWebsiteColor(domain);
         modal.className = 'modal-visible';
