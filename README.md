@@ -2,17 +2,14 @@
 My collection of firefox extension I have made
 
 Which currently includes:
-1. Screen time tracker - tracks screen time on websites
-2. tab grid - shows tabs in a grid view
+1. Screen time tracker (published) - tracks screen time on websites
+2. tab grid (published) - shows tabs in a grid view
 3. global themer (No longer in development) - allows you to change the theme of websites globally
-4. Web shortcuts (heavily in develpment) - Automate your web tasks with a powerful shortcut editor
-5. Sharing - share the link of the current page or highlighted text with a click
-6. Custom Homepage (heavily in develpment) - Get an android like homepage with widgets and shortcuts
-
-extension Ideas im considering
-1. Permission Monitor - log when sites accessed specific permissions
-2. AI Assistant - control websites and find info like google assistant
-3. Quick settings - would include options to configure all other extensions including theme on a custom page, would have a quick settings menu (like on android) and a dynamic island like thing that would be toggleable
+4. Web shortcuts (Moved to my website as a custom language) - Automate your web tasks with a powerful shortcut editor
+5. Sharing (complete but no longer in develpment) - share the link of the current page or highlighted text with a click
+6. Custom Homepage (Mostly finished) - Get an android like homepage with widgets and shortcuts
+7. Calculator - just a simple calculator extension that opens a popup
+8. Mobile Tools - just some random tools that are usually on mobile
 
 Probably more to come when I come up with ideas
 
