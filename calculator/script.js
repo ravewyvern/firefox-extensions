@@ -78,11 +78,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const associativity = { '^': 'Right' };
         const output = [];
         const operators = [];
-        const tokens = infix.match(/sin|cos|tan|asin|acos|atan|abs|exp|log|ln|√|π|!|%|e|i|\d+(\.\d+)?|[+\-×÷\^\(\)]/g) || [];
+        const tokens = infix.match(/sin|cos|tan|asin|acos|atan|abs|exp|log|ln|√|π|!|%|e|i|-?\d+(\.\d+)?|[+\-×÷\^\(\)]/g) || [];
 
-        tokens.forEach(token => {
+        tokens.forEach((token, index) => {
             if (!isNaN(parseFloat(token))) {
                 output.push(C(parseFloat(token)));
+            } else if (token === '-' && (index === 0 || tokens[index-1] === '(' || /[+\-×÷\^]/.test(tokens[index-1]))) {
+                // Handle unary minus - push -1 and prepare for multiplication
+                output.push(C(-1));
+                operators.push('×');
             } else if (token === 'i') {
                 output.push(C(0, 1));
             } else if (scientific.constants[token]) {
@@ -197,6 +201,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const handleInput = (value) => {
         if (equationDisplay.value === 'Error') currentEquation = '';
+
+        // Special case for starting with a negative number
+        if (currentEquation === '' && value === '-') {
+            currentEquation = '-';
+            equationDisplay.value = currentEquation;
+            return;
+        }
 
         // Smart Negative & Operator Blocking Logic
         const lastChar = currentEquation.slice(-1);
