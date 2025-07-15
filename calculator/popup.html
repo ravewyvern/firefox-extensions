@@ -36,7 +36,12 @@
         </div>
         <div class="calculator-body">
             <div id="scientific-buttons" class="buttons">
-                <!-- Scientific buttons will be injected here by scientific.js -->
+                <button class="btn btn-operator" data-value="sin-inv">sin⁻¹</button>
+                <button class="btn btn-operator" data-value="cos-inv">cos⁻¹</button>
+                <button class="btn btn-operator" data-value="tan-inv">tan⁻¹</button>
+                <button class="btn btn-operator" data-value="abs">|x|</button>
+                <button class="btn btn-operator" data-value="e-power">eˣ</button>
+                <button class="btn btn-operator" data-value="i">i</button>
                 <button class="btn btn-operator" data-value="sin">sin</button>
                 <button class="btn btn-operator" data-value="cos">cos</button>
                 <button class="btn btn-operator" data-value="tan">tan</button>
@@ -46,7 +51,7 @@
             </div>
             <div class="buttons main-buttons">
                 <button class="btn btn-operator half-height" data-value="sqrt">√</button>
-                <button class="btn btn-operator half-height" data-value="pi">π</button>
+                <button class="btn btn-operator half-height" data-value="π">π</button>
                 <button class="btn btn-operator half-height" data-value="^">^</button>
                 <button class="btn btn-operator half-height" data-value="!">n!</button>
                 <button class="btn btn-operator" data-value="C">C</button>
@@ -112,7 +117,13 @@
                     <span class="slider"></span>
                 </label>
             </div>
-<!--            added-->
+            <div class="setting-item">
+                <label for="toggle-scientific">Enable Scientific Mode</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-scientific" data-setting="scientific" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
             <div class="setting-item">
                 <label for="theme-color-picker">Theme Color</label>
                 <input type="color" id="theme-color-picker" value="#AECBFA">

@@ -1,15 +1,15 @@
 /* --- Material You Inspired Theme --- */
 :root {
-    --bg-color: #1A1B1E;
-    --surface-color: #242529;
-    --primary-accent: #AECBFA;
+    --bg-color: #29262f;
+    --surface-color: #3b3843;
+    --primary-accent: #d7cfdc;
     --secondary-accent: #D7BDE2;
-    --action-accent: #FABDAE;
+    --action-accent: #d7cfdc;
     --text-primary: #E0E0E0;
     --text-secondary: #B0B0B0;
-    --btn-bg-number: #3B3B3B;
-    --btn-bg-operator: #2E2F33;
-    --btn-bg-action: #5E413A;
+    --btn-bg-number: #3b3843;
+    --btn-bg-operator: #564662;
+    --btn-bg-action: #6a578f;
     --shadow-color: rgba(0, 0, 0, 0.2);
     --border-radius: 24px;
 }
@@ -43,10 +43,10 @@ html, body {
     transition: background-color 0.2s ease, color 0.2s ease, display 0s;
 }
 .nav-btn svg { pointer-events: none; }
-.nav-btn:hover { background-color: var(--btn-bg-number); }
+.nav-btn:hover { background-color: #585067; }
 .nav-btn.active {
     color: var(--primary-accent);
-    background-color: rgba(174, 203, 250, 0.1);
+    background-color: #6a578f;
 }
 
 /* --- Content & Views --- */
@@ -95,23 +95,24 @@ html, body {
 
 /* Button Color Categories */
 .btn-number { background-color: var(--btn-bg-number); }
-.btn-number:hover { background-color: #4c4c4c; }
+.btn-number:hover { background-color: #483f52; }
 .btn-operator { background-color: var(--btn-bg-operator); color: var(--primary-accent); }
-.btn-operator:hover { background-color: #404145; }
+.btn-operator:hover { background-color: #5d4d69; }
 .btn-action { background-color: var(--btn-bg-action); color: var(--action-accent); }
-.btn-action:hover { background-color: #6f4c41; }
+.btn-action:hover { background-color: #6e5d93; }
 
 /* --- Scientific Mode --- */
 #scientific-buttons {
     display: none; /* Hidden by default */
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(6, 1fr);
     flex-grow: 0;
-    flex-basis: 80px; /* Width of the scientific panel */
+    flex-basis: 172px;
 }
-/* Media query to show scientific buttons on wider screens */
-@media (min-width: 480px) {
-    #scientific-buttons { display: grid; }
+
+/* This class will be added by JS when the mode is active */
+body.scientific-mode-active #scientific-buttons {
+    display: grid;
 }
 
 /* --- History & Settings Panels --- */

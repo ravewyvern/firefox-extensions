@@ -14,6 +14,30 @@ document.addEventListener('DOMContentLoaded', () => {
     let parenthesesOpen = 0;
 
     // --- Calculation Engine ---
+    /**
+     * Formats a complex number object for display.
+     * @param {object} c The complex number { re, im }.
+     * @returns {string} The formatted string.
+     */
+    const formatComplexResult = (c) => {
+        const re = parseFloat(c.re.toPrecision(10));
+        const im = parseFloat(c.im.toPrecision(10));
+
+        if (im === 0) return re.toString();
+        if (re === 0) {
+            if (im === 1) return 'i';
+            if (im === -1) return '-i';
+            return `${im}i`;
+        }
+        if (im > 0) {
+            if (im === 1) return `${re} + i`;
+            return `${re} + ${im}i`;
+        }
+        if (im < 0) {
+            if (im === -1) return `${re} - i`;
+            return `${re} - ${Math.abs(im)}i`;
+        }
+    };
 
     const factorial = (n) => {
         if (n < 0 || n % 1 !== 0) return NaN;
@@ -30,84 +54,95 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {number} The result of the calculation.
      */
     const evaluateExpression = (infix) => {
+        // --- Complex Number Helpers ---
+        const C = (re, im = 0) => ({ re, im });
+        const add = (a, b) => C(a.re + b.re, a.im + b.im);
+        const sub = (a, b) => C(a.re - b.re, a.im - b.im);
+        const mul = (a, b) => C(a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re);
+        const div = (a, b) => {
+            const d = b.re * b.re + b.im * b.im;
+            return C((a.re * b.re + a.im * b.im) / d, (a.im * b.re - a.re * b.im) / d);
+        };
+        const pow = (a, b) => { // Only supports real exponents for now
+            if (b.im !== 0) return C(NaN, NaN);
+            const r = Math.sqrt(a.re * a.re + a.im * a.im);
+            const theta = Math.atan2(a.im, a.re);
+            const newR = Math.pow(r, b.re);
+            const newTheta = theta * b.re;
+            return C(newR * Math.cos(newTheta), newR * Math.sin(newTheta));
+        };
+        const sqrt = (a) => pow(a, C(0.5));
+
+        // --- Shunting-Yard Implementation ---
         const precedence = { '+': 1, '-': 1, '×': 2, '÷': 2, '^': 3 };
-        const associativity = { '^': 'Right' }; // All others are Left by default
+        const associativity = { '^': 'Right' };
         const output = [];
         const operators = [];
-
-        // Improved tokenizer to correctly identify all parts of the expression
-        const tokens = infix.match(/sin|cos|tan|log|ln|√|π|!|%|e|\d+(\.\d+)?|[+\-×÷\^\(\)]/g) || [];
+        const tokens = infix.match(/sin|cos|tan|asin|acos|atan|abs|exp|log|ln|√|π|!|%|e|i|\d+(\.\d+)?|[+\-×÷\^\(\)]/g) || [];
 
         tokens.forEach(token => {
-            if (!isNaN(parseFloat(token))) { // is a number
-                output.push(parseFloat(token));
-            } else if (scientific.constants[token]) { // is a constant like π or e
-                output.push(scientific.constants[token]);
-            } else if (scientific.functions[token] || token === '√') { // is a function
+            if (!isNaN(parseFloat(token))) {
+                output.push(C(parseFloat(token)));
+            } else if (token === 'i') {
+                output.push(C(0, 1));
+            } else if (scientific.constants[token]) {
+                output.push(C(scientific.constants[token]));
+            } else if (scientific.functions[token] || token === '√') {
                 operators.push(token);
             } else if (token === '(') {
                 operators.push(token);
             } else if (token === ')') {
-                while (operators.length && operators[operators.length - 1] !== '(') {
-                    output.push(operators.pop());
-                }
-                if (operators[operators.length - 1] === '(') operators.pop(); // Pop the '('
-
+                while (operators.length && operators[operators.length - 1] !== '(') output.push(operators.pop());
+                if (operators[operators.length - 1] === '(') operators.pop();
                 const lastOp = operators[operators.length - 1];
-                if (scientific.functions[lastOp] || lastOp === '√') {
-                    output.push(operators.pop());
-                }
-            } else { // is an operator
+                if (scientific.functions[lastOp] || lastOp === '√') output.push(operators.pop());
+            } else {
                 const op1 = token;
-                while (
-                    operators.length && operators[operators.length - 1] !== '('
-                    ) {
+                while (operators.length && operators[operators.length - 1] !== '(') {
                     const op2 = operators[operators.length - 1];
-                    if (
-                        (associativity[op1] !== 'Right' && precedence[op1] <= precedence[op2]) ||
-                        (associativity[op1] === 'Right' && precedence[op1] < precedence[op2])
-                    ) {
+                    if ((associativity[op1] !== 'Right' && precedence[op1] <= precedence[op2]) || (associativity[op1] === 'Right' && precedence[op1] < precedence[op2])) {
                         output.push(operators.pop());
-                    } else {
-                        break;
-                    }
+                    } else break;
                 }
                 operators.push(op1);
             }
         });
 
-        while (operators.length) {
-            output.push(operators.pop());
-        }
+        while (operators.length) output.push(operators.pop());
 
-        // --- RPN Evaluation ---
+        // --- RPN Evaluation on Complex Numbers ---
         const stack = [];
         output.forEach(token => {
-            if (typeof token === 'number') {
+            if (typeof token === 'object') { // It's a complex number
                 stack.push(token);
-            } else if (scientific.functions[token] || token === '√' || token === '!' || token === '%') {
-                if (stack.length < 1) throw new Error("Syntax Error");
-                const a = stack.pop();
-                if (scientific.functions[token]) stack.push(scientific.functions[token](a));
-                else if (token === '√') stack.push(Math.sqrt(a));
-                else if (token === '!') stack.push(factorial(a));
-                else if (token === '%') stack.push(a / 100);
-            } else {
-                if (stack.length < 2) throw new Error("Syntax Error");
-                const b = stack.pop();
-                const a = stack.pop();
-                switch (token) {
-                    case '+': stack.push(a + b); break;
-                    case '-': stack.push(a - b); break;
-                    case '×': stack.push(a * b); break;
-                    case '÷': stack.push(a / b); break;
-                    case '^': stack.push(Math.pow(a, b)); break;
+            } else { // It's an operator/function
+                if (scientific.functions[token] || token === '√' || token === '!' || token === '%') {
+                    if (stack.length < 1) throw new Error("Syntax Error");
+                    const a = stack.pop();
+                    if (a.im !== 0) { // Most trig/log funcs are complex for complex inputs
+                        stack.push(C(NaN, NaN)); // Placeholder for full complex library
+                        return;
+                    }
+                    if (scientific.functions[token]) stack.push(C(scientific.functions[token](a.re)));
+                    else if (token === '√') stack.push(sqrt(a));
+                    else if (token === '!') stack.push(C(factorial(a.re)));
+                    else if (token === '%') stack.push(C(a.re / 100));
+                } else {
+                    if (stack.length < 2) throw new Error("Syntax Error");
+                    const b = stack.pop();
+                    const a = stack.pop();
+                    switch (token) {
+                        case '+': stack.push(add(a, b)); break;
+                        case '-': stack.push(sub(a, b)); break;
+                        case '×': stack.push(mul(a, b)); break;
+                        case '÷': stack.push(div(a, b)); break;
+                        case '^': stack.push(pow(a, b)); break;
+                    }
                 }
             }
         });
-
         if (stack.length !== 1) throw new Error("Syntax Error");
-        return stack[0];
+        return stack[0]; // Return the complex result object
     };
 
     // --- Display and Input Functions ---
@@ -125,9 +160,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 resultDisplay.textContent = '';
                 return;
             }
-            const result = evaluateExpression(currentEquation);
-            if (!isNaN(result) && isFinite(result)) {
-                resultDisplay.textContent = result.toLocaleString('en-US', { maximumFractionDigits: 10 });
+            const result = evaluateExpression(currentEquation); // result is {re, im}
+            if (!isNaN(result.re) && isFinite(result.re)) {
+                if (result.im === 0) {
+                    resultDisplay.textContent = result.re.toLocaleString('en-US', { maximumFractionDigits: 10 });
+                } else {
+                    // Otherwise, show the full complex string from our helper
+                    resultDisplay.textContent = formatComplexResult(result);
+                }
             } else {
                 resultDisplay.textContent = '';
             }
@@ -139,9 +179,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const calculateFinalResult = () => {
         if (!currentEquation) return;
         try {
-            const result = evaluateExpression(currentEquation);
-            if (isNaN(result) || !isFinite(result)) throw new Error("Invalid");
-            const formattedResult = formatResult(result);
+            const result = evaluateExpression(currentEquation); // result is a complex object
+            if (isNaN(result.re) || !isFinite(result.re)) throw new Error("Invalid");
+
+            const formattedResult = formatComplexResult(result);
             addToHistory(currentEquation, formattedResult);
             currentEquation = formattedResult;
             equationDisplay.value = currentEquation;
@@ -157,6 +198,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleInput = (value) => {
         if (equationDisplay.value === 'Error') currentEquation = '';
 
+        // Smart Negative & Operator Blocking Logic
+        const lastChar = currentEquation.slice(-1);
+        const isLastCharOperator = /[×÷\+\^\-]$/.test(lastChar);
+        const isValueOperator = /[×÷\+\^\-]$/.test(value);
+
+        if (isLastCharOperator && value === '-') {
+            currentEquation += '(-';
+            parenthesesOpen++;
+            equationDisplay.value = currentEquation;
+            return;
+        }
+
+        if (isLastCharOperator && isValueOperator) {
+            return; // Block consecutive operators
+        }
+
+        // Standard Input Handling
         if (value.endsWith('(')) {
             currentEquation += value;
             parenthesesOpen++;
@@ -167,10 +225,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'Backspace':
                     if (currentEquation.slice(-1) === '(') parenthesesOpen--;
                     if (currentEquation.slice(-1) === ')') parenthesesOpen++;
-                    currentEquation = currentEquation.slice(0, -1);
+                    if (currentEquation.endsWith('(-')) {
+                        currentEquation = currentEquation.slice(0, -2);
+                        parenthesesOpen--;
+                    } else {
+                        currentEquation = currentEquation.slice(0, -1);
+                    }
                     break;
                 case '()':
-                    const lastChar = currentEquation.slice(-1);
                     if (parenthesesOpen > 0 && (lastChar === '(' || !isNaN(parseInt(lastChar)))) {
                         currentEquation += ')';
                         parenthesesOpen--;
@@ -179,7 +241,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         parenthesesOpen++;
                     }
                     break;
+                // New function handlers
                 case 'sqrt': currentEquation += '√('; parenthesesOpen++; break;
+                case 'sin-inv': currentEquation += 'asin('; parenthesesOpen++; break;
+                case 'cos-inv': currentEquation += 'acos('; parenthesesOpen++; break;
+                case 'tan-inv': currentEquation += 'atan('; parenthesesOpen++; break;
+                case 'abs': currentEquation += 'abs('; parenthesesOpen++; break;
+                case 'e-power': currentEquation += 'exp('; parenthesesOpen++; break;
+
                 default: currentEquation += value.replace('*', '×').replace('/', '÷');
             }
         }
@@ -188,32 +257,49 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- View & Settings Management ---
+    const checkScientificModeVisibility = () => {
+        const isEnabledBySetting = document.body.classList.contains('scientific-setting-enabled');
+        const isWideEnough = window.innerWidth >= 560;
+
+        if (isEnabledBySetting && isWideEnough) {
+            document.body.classList.add('scientific-mode-active');
+        } else {
+            document.body.classList.remove('scientific-mode-active');
+        }
+    };
+
     const applySettings = (settings) => {
-        settingsToggles.forEach(toggle => {
+        // Handle tab visibility toggles
+        document.querySelectorAll('.toggle-switch input[data-view]').forEach(toggle => {
             const viewName = toggle.dataset.view;
             const isVisible = settings[viewName] !== false; // default to true
             toggle.checked = isVisible;
             document.querySelector(`.nav-btn[data-view="${viewName}"]`).style.display = isVisible ? 'flex' : 'none';
         });
+
+        // Handle scientific mode setting
+        const scientificEnabled = settings.scientific !== false; // Default to true
+        const scientificToggle = document.getElementById('toggle-scientific');
+        if(scientificToggle) scientificToggle.checked = scientificEnabled;
+
+        if (scientificEnabled) {
+            document.body.classList.add('scientific-setting-enabled');
+        } else {
+            document.body.classList.remove('scientific-setting-enabled');
+        }
+        checkScientificModeVisibility();
     };
 
-
-    // Corrected settings listener
-    settingsToggles.forEach(toggle => {
-        toggle.addEventListener('change', () => {
-            const currentSettings = {};
-            settingsToggles.forEach(t => {
-                currentSettings[t.dataset.view] = t.checked;
-            });
-
-            browser.storage.local.set({ calculatorSettings: currentSettings });
-            applySettings(currentSettings);
-
-            const activeNav = document.querySelector('.nav-btn.active');
-            if (activeNav && activeNav.style.display === 'none') {
-                viewSwitcher.querySelector('[data-view="calculator"]').click();
-            }
+    const saveSettings = () => {
+        const settings = {};
+        settingsToggles.forEach(toggle => {
+            settings[toggle.dataset.setting] = toggle.checked;
         });
+        browser.storage.local.set({ calculatorSettings: settings });
+    };
+
+    settingsToggles.forEach(toggle => {
+        toggle.addEventListener('change', saveSettings);
     });
 
     viewSwitcher.addEventListener('click', (e) => {
@@ -386,13 +472,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-// Update the loadSettings function to handle the theme color
     const loadSettings = () => {
         browser.storage.local.get('calculatorSettings').then(data => {
-            const settings = data.calculatorSettings || {};
-            applySettings(settings);
-
-            // Apply saved theme color if available
+            applySettings(data.calculatorSettings || {});
+            // Extra functionality from second version
             if (settings.themeColor) {
                 themeColorPicker.value = settings.themeColor;
                 applyColorTheme(settings.themeColor);
@@ -413,9 +496,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const resizeObserver = new ResizeObserver(checkScientificModeVisibility);
+    resizeObserver.observe(document.body);
+
     // --- Initialization ---
     loadHistory();
     loadSettings();
-    scientific.init(handleInput);
+
+
 });
 
