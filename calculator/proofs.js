@@ -28,7 +28,8 @@ const proofs = {
         { name: "HL Theorem", def: "Hypotenuse-Leg Theorem: In right triangles, if the hypotenuse and one leg of one triangle are congruent to those of another, then the triangles are congruent." },
         { name: "CPCTC", def: "Corresponding Parts of Congruent Triangles are Congruent: After proving triangles congruent, all matching parts are congruent too." },
         { name: "Definition of Congruent Triangles", def: "Two triangles are congruent if all three pairs of corresponding sides and all three pairs of corresponding angles are congruent." },
-        { name: "Definition of a Linear Pair", def: "Two adjacent angles that form a straight line. The angles in a linear pair are always supplementary." }
+        { name: "Definition of a Linear Pair", def: "Two adjacent angles that form a straight line. The angles in a linear pair are always supplementary." },
+        { name: "Given", def: "Just the given information" }
     ],
 
     // --- DOM Elements ---

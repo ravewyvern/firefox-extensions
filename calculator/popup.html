@@ -169,15 +169,66 @@
             <div class="geo-results">
                 <div class="geo-result-item">
                     <span>Distance:</span>
-                    <code id="geo-distance"></code>
+                    <div class="result-with-copy">
+                        <code id="geo-distance"></code>
+                        <button class="copy-btn">Copy</button>
+                    </div>
                 </div>
                 <div class="geo-result-item">
                     <span>Midpoint:</span>
-                    <code id="geo-midpoint"></code>
+                    <div class="result-with-copy">
+                        <code id="geo-midpoint"></code>
+                        <button class="copy-btn">Copy</button>
+                    </div>
                 </div>
                 <div class="geo-result-item">
                     <span>Equation:</span>
-                    <code id="geo-equation"></code>
+                    <div class="result-with-copy">
+                        <code id="geo-equation"></code>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Line Relationship Tool -->
+        <div class="geometry-tool">
+            <h4>Line Relationship</h4>
+            <div class="geo-inputs-wide">
+                <input type="text" id="line1-eq" placeholder="y = m₁x + b₁" value="y = 2x + 3">
+                <input type="text" id="line2-eq" placeholder="y = m₂x + b₂" value="y = 2x - 1">
+            </div>
+            <div class="geo-results">
+                <div class="geo-result-item">
+                    <span>Relationship:</span>
+                    <div class="result-with-copy">
+                        <code id="geo-relationship"></code>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Line Generator Tool -->
+        <div class="geometry-tool">
+            <h4>New Lines from Point & Line</h4>
+            <div class="geo-inputs-wide">
+                <input type="text" id="point-input" placeholder="(x, y)" value="(2, 5)">
+                <input type="text" id="line-eq-input" placeholder="y = mx + b" value="y = -3x + 1">
+            </div>
+            <div class="geo-results">
+                <div class="geo-result-item">
+                    <span>Parallel Line:</span>
+                    <div class="result-with-copy">
+                        <code id="geo-parallel-eq"></code>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                </div>
+                <div class="geo-result-item">
+                    <span>Perpendicular Line:</span>
+                    <div class="result-with-copy">
+                        <code id="geo-perp-eq"></code>
+                        <button class="copy-btn">Copy</button>
+                    </div>
                 </div>
             </div>
         </div>

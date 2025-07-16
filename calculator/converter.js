@@ -248,17 +248,3 @@ const converter = {
 
 // Initialize the converter when the DOM is ready.
 document.addEventListener('DOMContentLoaded', () => converter.init());
-
-// Add event delegation for copy buttons
-document.addEventListener('click', (e) => {
-    if (e.target.classList.contains('copy-btn')) {
-        const valueToCopy = e.target.dataset.value;
-        // Use the clipboard API
-        navigator.clipboard.writeText(valueToCopy).then(() => {
-            e.target.textContent = 'Copied!';
-            setTimeout(() => {
-                e.target.textContent = 'Copy';
-            }, 1000);
-        });
-    }
-});

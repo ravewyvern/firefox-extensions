@@ -546,6 +546,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const resizeObserver = new ResizeObserver(checkScientificModeVisibility);
     resizeObserver.observe(document.body);
 
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('copy-btn')) {
+            const resultContainer = e.target.previousElementSibling;
+            if (resultContainer) {
+                const valueToCopy = resultContainer.textContent;
+                navigator.clipboard.writeText(valueToCopy).then(() => {
+                    e.target.textContent = 'Copied!';
+                    setTimeout(() => {
+                        e.target.textContent = 'Copy';
+                    }, 1200);
+                });
+            }
+        }
+    });
+
     // --- Initialization ---
     loadHistory();
     loadSettings();

@@ -348,3 +348,22 @@ input:checked + .slider:before {
     font-size: 1.2em;
     cursor: pointer;
 }
+.result-with-copy {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.geo-inputs-wide {
+    display: flex;
+    gap: 16px;
+}
+.geo-inputs-wide input {
+    flex-grow: 1;
+    text-align: center;
+    background-color: var(--surface-color);
+    border: 1px solid var(--btn-bg-number);
+    color: var(--text-primary);
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 14px;
+}
