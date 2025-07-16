@@ -186,3 +186,165 @@ input:checked + .slider:before {
     transform: translateX(22px);
     background-color: var(--surface-color);
 }
+
+/* --- Geometry Styles --- */
+#geometry-view h4 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+.geometry-tool {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+.geo-inputs {
+    display: flex;
+    justify-content: space-around;
+    gap: 16px;
+}
+.geo-point {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+}
+.geo-point span {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+.geo-point input {
+    width: 80px;
+    text-align: center;
+    background-color: var(--surface-color);
+    border: 1px solid var(--btn-bg-number);
+    color: var(--text-primary);
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 16px;
+}
+.geo-results {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: var(--surface-color);
+    padding: 16px;
+    border-radius: var(--border-radius);
+}
+.geo-result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1em;
+}
+.geo-result-item span {
+    color: var(--text-secondary);
+}
+.geo-result-item code {
+    font-family: 'Inter', monospace;
+    font-weight: 500;
+    color: var(--primary-accent);
+    background-color: var(--btn-bg-operator);
+    padding: 4px 8px;
+    border-radius: 8px;
+}
+
+/* --- Proofs Tool Styles --- */
+.proof-tool-container {
+    display: flex;
+    gap: 16px;
+    height: 100%;
+}
+.proof-reference {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 200px;
+}
+.proof-builder {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+}
+#proof-search {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: var(--surface-color);
+    border: 1px solid var(--btn-bg-number);
+    color: var(--text-primary);
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 14px;
+}
+#proof-results-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+    overflow-y: auto;
+    background-color: var(--surface-color);
+    border-radius: 12px;
+}
+#proof-results-list li {
+    padding: 10px;
+    border-bottom: 1px solid var(--bg-color);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+#proof-results-list li:hover {
+    background-color: var(--btn-bg-number);
+}
+#proof-results-list li strong {
+    color: var(--primary-accent);
+    display: block;
+    margin-bottom: 4px;
+}
+#proof-results-list li p {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    margin: 0;
+}
+#proof-table {
+    width: 100%;
+    border-collapse: collapse;
+    flex-grow: 1;
+}
+#proof-table th, #proof-table td {
+    padding: 8px;
+    border: 1px solid var(--btn-bg-operator);
+}
+#proof-table th {
+    background-color: var(--btn-bg-operator);
+    color: var(--text-secondary);
+}
+#proof-table input[type="text"] {
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1em;
+    padding: 4px;
+}
+#proof-table input[type="text"]:focus {
+    outline: none;
+    background-color: rgba(174, 203, 250, 0.1);
+}
+.add-row-btn {
+    margin-top: 12px;
+    padding: 8px;
+    border: none;
+    background-color: var(--btn-bg-operator);
+    color: var(--primary-accent);
+    border-radius: 8px;
+    cursor: pointer;
+    align-self: flex-end;
+}
+.remove-row-btn {
+    background: none;
+    border: none;
+    color: var(--action-accent);
+    font-size: 1.2em;
+    cursor: pointer;
+}

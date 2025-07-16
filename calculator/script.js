@@ -281,17 +281,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const applySettings = (settings) => {
         // Handle tab visibility toggles
-        document.querySelectorAll('.toggle-switch input[data-view]').forEach(toggle => {
-            const viewName = toggle.dataset.view;
-            const isVisible = settings[viewName] !== false; // default to true
-            toggle.checked = isVisible;
-            document.querySelector(`.nav-btn[data-view="${viewName}"]`).style.display = isVisible ? 'flex' : 'none';
+        document.querySelectorAll('.toggle-switch input[data-setting]').forEach(toggle => {
+            const settingName = toggle.dataset.setting;
+            const viewName = toggle.dataset.view; // may be undefined
+
+            // Only process if we have a valid setting name
+            if (settingName) {
+                const isEnabled = settings[settingName] !== false;
+                toggle.checked = isEnabled;
+
+                // If the toggle controls a view tab, show/hide the nav button
+                if (viewName) {
+                    const navButton = document.querySelector(`.nav-btn[data-view="${viewName}"]`);
+                    if (navButton) {
+                        navButton.style.display = isEnabled ? 'flex' : 'none';
+                    }
+                }
+            }
         });
 
         // Handle scientific mode setting
         const scientificEnabled = settings.scientific !== false; // Default to true
         const scientificToggle = document.getElementById('toggle-scientific');
-        if(scientificToggle) scientificToggle.checked = scientificEnabled;
+        if (scientificToggle) scientificToggle.checked = scientificEnabled;
 
         if (scientificEnabled) {
             document.body.classList.add('scientific-setting-enabled');
@@ -302,11 +314,24 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const saveSettings = () => {
-        const settings = {};
-        settingsToggles.forEach(toggle => {
-            settings[toggle.dataset.setting] = toggle.checked;
+        // First get existing settings to avoid overwriting other settings
+        browser.storage.local.get('calculatorSettings').then(data => {
+            const settings = data.calculatorSettings || {};
+
+            // Update with current toggle values
+            settingsToggles.forEach(toggle => {
+                const settingName = toggle.dataset.setting;
+                if (settingName) { // Only save if we have a valid setting name
+                    settings[settingName] = toggle.checked;
+                }
+            });
+
+            // Save updated settings
+            browser.storage.local.set({ calculatorSettings: settings });
+
+            // Apply changes immediately
+            applySettings(settings);
         });
-        browser.storage.local.set({ calculatorSettings: settings });
     };
 
     settingsToggles.forEach(toggle => {
@@ -370,7 +395,17 @@ document.addEventListener('DOMContentLoaded', () => {
     buttonsContainer.addEventListener('click', (e) => {
         if (e.target.closest('button')) handleInput(e.target.closest('button').dataset.value);
     });
+    const allowedInputIds = ['converter-input', 'equation-display']; // replace with your allowed IDs
+
     document.addEventListener('keydown', (e) => {
+        const target = e.target;
+
+        // If the event target is an input AND its ID is NOT in the list, skip handling
+        if (target.tagName === 'INPUT' && !allowedInputIds.includes(target.id)) {
+            return; // Let the key event go through normally
+        }
+
+        // Otherwise, prevent default and process keys
         e.preventDefault();
         const key = e.key;
         if ('0123456789./*-+^%'.includes(key)) handleInput(key);
@@ -485,7 +520,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loadSettings = () => {
         browser.storage.local.get('calculatorSettings').then(data => {
-            applySettings(data.calculatorSettings || {});
+            const settings = data.calculatorSettings || {};
+            applySettings(settings);
             // Extra functionality from second version
             if (settings.themeColor) {
                 themeColorPicker.value = settings.themeColor;
