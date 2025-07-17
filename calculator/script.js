@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const associativity = { '^': 'Right' };
         const output = [];
         const operators = [];
-        const tokens = infix.match(/sin|cos|tan|asin|acos|atan|abs|exp|log|ln|√|π|!|%|e|i|-?\d+(\.\d+)?|[+\-×÷\^\(\)]/g) || [];
+        const tokens = infix.match(/sin|cos|tan|asin|acos|atan|abs|exp|log|ln|√|π|!|%|e|i|\d+(\.\d+)?|[+\-×÷\^\(\)]/g) || [];
 
         tokens.forEach((token, index) => {
             if (!isNaN(parseFloat(token))) {
@@ -87,6 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Handle unary minus - push -1 and prepare for multiplication
                 output.push(C(-1));
                 operators.push('×');
+            } else if (token === '-') {
+                // This is a binary subtraction
+                operators.push(token);
             } else if (token === 'i') {
                 output.push(C(0, 1));
             } else if (scientific.constants[token]) {
