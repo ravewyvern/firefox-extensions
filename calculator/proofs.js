@@ -29,6 +29,7 @@ const proofs = {
         { name: "CPCTC", def: "Corresponding Parts of Congruent Triangles are Congruent: After proving triangles congruent, all matching parts are congruent too." },
         { name: "Definition of Congruent Triangles", def: "Two triangles are congruent if all three pairs of corresponding sides and all three pairs of corresponding angles are congruent." },
         { name: "Definition of a Linear Pair", def: "Two adjacent angles that form a straight line. The angles in a linear pair are always supplementary." },
+        { name: "Distributive property", def: "a (b + c) = ab + ac" },
         { name: "Given", def: "Just the given information" }
     ],
 

@@ -31,6 +31,9 @@
     <button class="nav-btn" data-view="proofs">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
     </button>
+    <button class="nav-btn" data-view="math-tools">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+    </button>
 </div>
 
 <div class="content-container">
@@ -134,6 +137,13 @@
                 <label for="toggle-proofs">Show Proofs Tab</label>
                 <label class="toggle-switch">
                     <input type="checkbox" id="toggle-proofs" data-view="proofs" data-setting="proofs" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label for="toggle-math-tools">Show Math Tools Tab</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-math-tools" data-view="math-tools" data-setting="mathTools" checked>
                     <span class="slider"></span>
                 </label>
             </div>
@@ -262,6 +272,17 @@
         </div>
     </div>
 
+    <div id="math-tools-view" class="view">
+        <div class="math-tools-container">
+            <div class="math-tools-tabs">
+                <!-- Tab buttons will be generated here -->
+            </div>
+            <div class="math-tools-content">
+                <iframe id="math-tools-iframe" title="Math Tool"></iframe>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script src="scientific.js"></script>
@@ -269,5 +290,6 @@
 <script src="geometry.js"></script>
 <script src="script.js"></script>
 <script src="proofs.js"></script>
+<script src="tools.js"></script>
 </body>
 </html>
