@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="prompt.css">
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <img src="../assets/icon-48.png" alt="Icon">
+        <h3>Permission Request</h3>
+    </div>
+    <div class="prompt-body">
+        <p><strong id="origin">A website</strong> is requesting permission for:</p>
+        <p class="permission-description" id="description">No description available.</p>
+    </div>
+    <div class="actions">
+        <button id="allow" title="Always allow this site">Allow</button>
+        <button id="block" title="Always block this site">Block</button>
+        <button id="ask" title="Ask me every time">Ask Every Time</button>
+        <button id="allow-until-reload" title="Allow until the page is reloaded">Allow for Session</button>
+        <button id="allow-this-time" title="Allow just this once">Allow Once</button>
+        <button id="block-silently" title="Pretend to the site that it failed">Block Silently</button>
+    </div>
+</div>
+<script src="prompt.js"></script>
+</body>
+</html>

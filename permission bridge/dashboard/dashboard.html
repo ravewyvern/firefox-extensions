@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Web Bridge Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+<div class="dashboard-container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img src="../assets/icon-48.png" alt="Icon">
+      <h2>Web Bridge</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#audit-log" class="nav-item active" data-tab="audit-log">Audit Log</a>
+      <a href="#permission-manager" class="nav-item" data-tab="permission-manager">Permission Manager</a>
+      <a href="#settings" class="nav-item" data-tab="settings">Settings</a>
+      <a href="#about" class="nav-item" data-tab="about">About</a>
+    </nav>
+  </aside>
+  <main class="main-content">
+    <!-- Audit Log Tab -->
+    <div id="audit-log" class="tab-content active">
+      <h1>Audit Log</h1>
+      <p>A log of all permission requests and actions.</p>
+      <div class="table-container">
+        <table>
+          <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Origin</th>
+            <th>Permission</th>
+            <th>Action</th>
+          </tr>
+          </thead>
+          <tbody id="audit-log-body">
+          <!-- Rows will be injected by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Permission Manager Tab -->
+    <div id="permission-manager" class="tab-content">
+      <h1>Permission Manager</h1>
+      <div class="controls">
+        <label for="view-toggle">View by:</label>
+        <select id="view-toggle">
+          <option value="permission">Permission</option>
+          <option value="site">Site</option>
+        </select>
+      </div>
+      <div id="permission-manager-content">
+        <!-- Content will be injected by JS -->
+      </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div id="settings" class="tab-content">
+      <h1>Settings</h1>
+      <div class="setting-item">
+        <h3>Custom CSS</h3>
+        <p>Apply custom CSS to the dashboard (for demonstration).</p>
+        <textarea id="custom-css" placeholder="e.g., body { font-family: 'Courier New', monospace; }"></textarea>
+        <button id="save-settings">Save Settings</button>
+        <p id="settings-saved-msg" class="hidden">Settings saved!</p>
+      </div>
+      <div id="dev-options" class="setting-item hidden">
+        <h3>Developer Options</h3>
+        <p>These options are for advanced users.</p>
+        <label>
+          <input type="checkbox" id="dev-disable-blacklist"> Disable permission blacklist
+        </label>
+        <br>
+        <label>
+          <input type="checkbox" id="dev-disable-warnings"> Disable extra warnings
+        </label>
+      </div>
+    </div>
+
+    <!-- About Tab -->
+    <div id="about" class="tab-content">
+      <h1>About Web Bridge</h1>
+      <p>Version <span id="version-number" title="You know what to do...">1.0.0</span></p>
+      <p>Web Bridge is a browser extension designed to create a secure link between websites and powerful browser features, putting you in control of what sites can do.</p>
+    </div>
+  </main>
+</div>
+<script src="dashboard.js"></script>
+</body>
+</html>

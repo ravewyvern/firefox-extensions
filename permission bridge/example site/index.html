@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Bridge API Example</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- The website includes the API provided by the extension -->
+  <script src="bridge-api.js"></script>
+</head>
+<body>
+<main>
+  <h1>Web Bridge API Demo</h1>
+  <p>This page demonstrates how a website can interact with the Web Bridge browser extension to request advanced permissions.</p>
+
+  <div class="card">
+    <h2>Clipboard Write</h2>
+    <p>Request permission to write text to the clipboard.</p>
+    <div class="form-group">
+      <textarea id="clipboard-write-text" rows="3">Hello from the website! This text will be copied.</textarea>
+    </div>
+    <button id="write-clipboard-btn">Write to Clipboard</button>
+  </div>
+
+  <div class="card">
+    <h2>Clipboard Read</h2>
+    <p>Request permission to read text from the clipboard.</p>
+    <button id="read-clipboard-btn">Read from Clipboard</button>
+    <div class="result-box" id="clipboard-read-result">
+      Clipboard content will appear here...
+    </div>
+  </div>
+
+  <div class="log-container">
+    <h3>Action Log</h3>
+    <pre id="action-log"></pre>
+  </div>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
